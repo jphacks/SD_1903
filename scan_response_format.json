@@ -1,0 +1,18 @@
+{
+    "img": "画像のbase64エンコード",
+    "statistics": {
+        "face": 120,
+        "pupil": 120,
+        "etc": "統計データ"
+    },
+    "mosaic_points": [
+        {
+            "name": "face",
+            "etc": "座標"
+        }
+    ],
+    "advice": {
+        "face": "〜",
+        "pupil": "〜"
+    }
+}
