@@ -71,6 +71,7 @@ class MainActivity : AppCompatActivity() {
         val inteEx = intent.extras
         if (inteEx != null) {
             if ("pref_key" in inteEx.keySet()) {
+                Log.d("[LOG] DEBUG", "get pref_key from notification")
                 val nextIntent = Intent(this, ScanActivity::class.java)
                 nextIntent.putExtra("pref_key", intent.getStringExtra("pref_key"))
                 nextIntent.putExtra("to", "NOTIFICATION")
