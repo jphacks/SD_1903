@@ -53,16 +53,6 @@ def privacy_scan(request):
 
     elif request_json and 'img' in request_json:
 
-        # Storageから統計データを取得
-        client = storage.Client()
-        bucket = client.get_bucket('cras_storage')
-        # https://console.cloud.google.com/storage/browser/[bucket-id]/
-        db_blob = bucket.get_blob('durian_db.json')
-        db_json = json.loads(db_blob.download_as_string().decode('utf-8'))
-        if 'statistics' not in db_json:
-            db_json['statistics'] = {}
-        statistics_dict = db_json['statistics']
-
         # APIKey取得
         google_api_key = ''
         with open('google_api_key.txt', 'r') as txt:
@@ -118,7 +108,7 @@ def privacy_scan(request):
         # モザイクを入れる座標
         return_mosaic_list = []
         # 検出されたタグ
-        detected_dict = {
+        detected_tag_dict = {
             'face': False,
             'pupil': False,
             'finger': False,
@@ -136,7 +126,7 @@ def privacy_scan(request):
         # ラベル解析
         if 'labelAnnotations' in img_ann:
             for label_info in img_ann['labelAnnotations']:
-                if label_info["score"] < 0.4:
+                if label_info["score"] < 0.5:
                     continue
                 desc = label_info["description"]
                 if desc == "Selfie":
@@ -149,10 +139,10 @@ def privacy_scan(request):
                     # Vサイン
                     check_label_list.append("V Sign")
                     # TODO: 指紋警戒
-                    detected_dict['finger'] = True
+                    detected_tag_dict['finger'] = True
                 if desc == "Finger":
                     check_label_list.append("Finger")
-                    detected_dict['finger'] = True
+                    detected_tag_dict['finger'] = True
                 if desc == "Screen" or desc == "Laptop":
                     check_label_list.append("Screen")
                     # 画面
@@ -162,7 +152,6 @@ def privacy_scan(request):
 
         if 'faceAnnotations' in img_ann:
             # 顔検出に引っかかったら統計データ更新
-            detected_dict['face'] = True
             tmp_face_points_list =[]
             tmp_left_pupil_points_list = []
             tmp_right_pupil_points_list = []  
@@ -192,7 +181,6 @@ def privacy_scan(request):
                     max_size = size
 
                 # 目の座標も取得
-                detected_dict['pupil'] = True  
                 landmarks = face_info['landmarks']
                 l_eye_top_x = 0
                 l_eye_top_y = 0
@@ -246,11 +234,13 @@ def privacy_scan(request):
                     # 最大の顔サイズの0.6倍より小さければモザイク対象 || 画像の1/100のサイズもない場合 
                     del tmp_face_point['size']
                     return_mosaic_list.append(tmp_face_point)
+                    detected_tag_dict['face'] = True
                 else:
                     # 顔は対象外だが、自撮りの場合は瞳にモザイク
-                    if 'Selfie' in check_label_list:
+                    if 'Selfie' in check_label_list or img.shape[0]*img.shape[1] / 4 > float(tmp_face_point['size']):
                         return_mosaic_list.append(tmp_left_pupil_points_list[i])
                         return_mosaic_list.append(tmp_right_pupil_points_list[i])
+                        detected_tag_dict['pupil'] = True
 
         if 'textAnnotations' in img_ann:
             for text_info in img_ann['textAnnotations'][:10]:
@@ -269,16 +259,18 @@ def privacy_scan(request):
                     for char_info in result_texts:
                         if "ART" in char_info:
                             # TODO 人工物検出
-                            advice_dict["text"].append("人工物：%s"%(char_info[0]))
+                            advice_dict["text"].append({"ART": char_info[0]})
                         elif "ORG" in char_info:
                             # TODO 組織名検出
-                            advice_dict["text"].append("組織名：%s"%(char_info[0]))
+                            advice_dict["text"].append({"ORG": char_info[0]})
                         elif "LOC" in char_info:
                             # TODO 場所情報
-                            advice_dict["text"].append("場所：%s"%(char_info[0]))
+                            advice_dict["text"].append({"LOC":char_info[0]})
+                            detected_tag_dict['text'] = True
                         elif "PSN" in char_info:
                             # TODO 人物名検出
-                            advice_dict["text"].append("人物：%s"%(char_info[0]))
+                            advice_dict["text"].append({"PSN":char_info[0]})
+                            detected_tag_dict['text'] = True
                 else:
                     text_point = text_info['boundingPoly']['vertices']
                     top_x = text_point[0]['x'] if 'x' in text_point[0] else 0
@@ -294,58 +286,13 @@ def privacy_scan(request):
                         "width": 5,
                         "color": (51, 77, 234)
                     })
-                # テキストに人名か場所があった場合（危険度：高）
-                # if "PSN" in text_detected_list or "LOC" in text_detected_list:
-                #     # 文字の座標を取得
-                #     text_point = text_info['boundingPoly']['vertices']
-                #     top_x = text_point[0]['x'] if 'x' in text_point[0] else 0
-                #     top_y = text_point[0]['y'] if 'y' in text_point[0] else 0
-                #     end_x = text_point[2]['x'] if 'x' in text_point[2] else 0
-                #     end_y = text_point[2]['y'] if 'y' in text_point[2] else 0
-                #     return_mosaic_list.append({
-                #         "name": "text",
-                #         "top_x": top_x,
-                #         "top_y": top_y,
-                #         "end_x": end_x,
-                #         "end_y": end_y,
-                #         "width": 5,
-                #         "color": (51, 77, 234)
-                #     })
-
-                # if "ART" in text_detected_list or "ORG" in text_detected_list:
-                #     # 文字の座標を取得
-                #     text_point = text_info['boundingPoly']['vertices']
-                #     top_x = text_point[0]['x'] if 'x' in text_point[0] else 0
-                #     top_y = text_point[0]['y'] if 'y' in text_point[0] else 0
-                #     end_x = text_point[2]['x'] if 'x' in text_point[2] else 0
-                #     end_y = text_point[2]['y'] if 'y' in text_point[2] else 0
-                #     return_mosaic_list.append({
-                #         "name": "text",
-                #         "top_x": top_x,
-                #         "top_y": top_y,
-                #         "end_x": end_x,
-                #         "end_y": end_y,
-                #         "width": 5,
-                #         "color": (255, 77, 0)
-                #     })
-
-        # return_mosaic_listの整理（消す座標は消す）
-        # if 'Selfie' in check_label_list:
-        #     # 自撮りの場合
-        #     # 最もサイズが大きい顔を決定
-        #     index = 0
-        #     big_size = 0
-        #     for i, p_info in enumerate(return_mosaic_list):
-        #         if 'face' == p_info['name']:
-        #             size = (p_info['end_x'] - p_info['top_x']) * (p_info['end_y'] - p_info['top_y'])
-        #             if size > big_size:
-        #                 big_size = size
-        #                 index = i
-        #     del return_mosaic_list[index]
             
-        #     for i, p_info in enumerate(return_mosaic_list):
-        #         if 'face' == p_info['name']:
-            
+        if 'landmarkAnnotations' in img_ann:
+            detected_tag_dict['landmark'] = True
+            landmarks_ann = img_ann['landmarkAnnotations']
+            for landmark in landmarks_ann:
+                desc = landmark['description']
+                location = (landmark['locations'][0]['latLng']['latitude'], landmark['locations'][0]['latLng']['longitude'])
 
         # モザイク処理
         for mosaic_point in return_mosaic_list:
@@ -356,6 +303,37 @@ def privacy_scan(request):
                 mosaic_point['color'],
                 mosaic_point["width"])
         
+        # Storageから統計データを取得
+        client = storage.Client()
+        bucket = client.get_bucket('cras_storage')
+        # https://console.cloud.google.com/storage/browser/[bucket-id]/
+        db_blob = bucket.get_blob('durian_db.json')
+        db_json = json.loads(db_blob.download_as_string().decode('utf-8'))
+        if 'statistics' not in db_json:
+            db_json['statistics'] = {}
+        statistics_dict = db_json['statistics']
+
+        if 'face' in statistics_dict:
+            statistics_dict['face'] += 1 if detected_tag_dict['face'] else 0
+        else:
+            statistics_dict['face'] = 1 if detected_tag_dict['face'] else 0
+        if 'pupil' in statistics_dict:
+            statistics_dict['pupil'] += 1 if detected_tag_dict['pupil'] else 0
+        else:
+            statistics_dict['pupil'] = 1 if detected_tag_dict['pupil'] else 0
+        if 'finger' in statistics_dict:
+            statistics_dict['finger'] += 1 if detected_tag_dict['finger'] else 0
+        else:
+            statistics_dict['finger'] = 1 if detected_tag_dict['finger'] else 0
+        if 'text' in statistics_dict:
+            statistics_dict['text'] += 1 if detected_tag_dict['text'] else 0
+        else:
+            statistics_dict['text'] = 1 if detected_tag_dict['text'] else 0
+        if 'landmark' in statistics_dict:
+            statistics_dict['landmark'] += 1 if detected_tag_dict['landmark'] else 0
+        else:
+            statistics_dict['landmark'] = 1 if detected_tag_dict['landmark'] else 0
+
         # 統計データ更新
         db_json['statistics'] = statistics_dict
         db_blob.upload_from_string(json.dumps(db_json))
@@ -365,6 +343,7 @@ def privacy_scan(request):
         json_data = {
             'img': b64encode(img_bytes).decode(),
             'statistics': statistics_dict,
+            'checks': detected_tag_dict,
             'mosaic_points': return_mosaic_list,
             'advice': advice_dict
         }

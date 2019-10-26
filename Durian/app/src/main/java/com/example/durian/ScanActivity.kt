@@ -240,6 +240,7 @@ class ScanActivity : AppCompatActivity() {
                     progressBar.isVisible = false
                 }
                 Log.d("[LOG] - DEBUG", resultJSONObj.getJSONObject("advice").toString())
+                Log.d("[LOG] - DEBUG", resultJSONObj.getJSONObject("statistics").toString())
             }
         }.start()
 
