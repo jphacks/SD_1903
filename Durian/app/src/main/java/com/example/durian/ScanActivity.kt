@@ -31,6 +31,7 @@ class ScanActivity : AppCompatActivity() {
 
     private val CAMERA_INTENT = 1
     private val SELECTION_INTENT = 2
+    private val ADD_MOSAIC_INTENT = 3
 
     private var path = ""
 
@@ -40,6 +41,7 @@ class ScanActivity : AppCompatActivity() {
 
         detectionView = findViewById(R.id.detectionView)
         addMosaicButton = findViewById(R.id.addMosaicButton)
+        addMosaicButton.isEnabled = false
 
         val toStr = intent.getStringExtra("to")
         if (toStr == "CAMERA") {
@@ -52,10 +54,20 @@ class ScanActivity : AppCompatActivity() {
             intent.type = "image/*"
             startActivityForResult(intent, SELECTION_INTENT)
         }
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == ADD_MOSAIC_INTENT) {
+            if (resultCode == Activity.RESULT_OK) {
+                finish()
+            }
+            else if (resultCode == Activity.RESULT_CANCELED) {
+                finish()
+            }
+        }
 
         if (requestCode == CAMERA_INTENT && resultCode == Activity.RESULT_OK) {
             val contentValues = ContentValues().apply {
@@ -96,6 +108,8 @@ class ScanActivity : AppCompatActivity() {
                 }
             }
         }
+
+        enableMosaicButton()
     }
 
     private fun takePicture() {
@@ -126,6 +140,15 @@ class ScanActivity : AppCompatActivity() {
     }
 
 
+    private fun enableMosaicButton() {
+        addMosaicButton.isEnabled = true
+        addMosaicButton.setOnClickListener {
+            val intent = Intent(this, MosaicActivity::class.java)
+            startActivityForResult(intent, ADD_MOSAIC_INTENT)
+        }
+    }
+
+    // アクティビティ終了メソッド
     private fun turnBack(reason: String) {
         when (reason) {
             "CAMERA" -> {
@@ -133,5 +156,4 @@ class ScanActivity : AppCompatActivity() {
             }
         }
     }
-
 }
