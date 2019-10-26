@@ -228,11 +228,6 @@ class ScanActivity : AppCompatActivity() {
             // flag用のmap 右側にJSONの値
             val checkIdItem = listOf<ImageView>(faceCheck,pupilCheck,handCheck,charCheck,landmarkCheck)
             val checkMarkJSON = mutableListOf<Boolean>()
-            checkMarkJSON.add(true) //face
-            checkMarkJSON.add(false)  //pupil
-            checkMarkJSON.add(true) //hand
-            checkMarkJSON.add(false) //char
-            checkMarkJSON.add(true)//landmark
 
             if (resultJSONObj != null) {
                 if (resultJSONObj.has("img")) {
@@ -244,14 +239,32 @@ class ScanActivity : AppCompatActivity() {
                     val pref = getSharedPreferences("tmpShared", Context.MODE_PRIVATE)
                     pref.edit().putString("tmp_img", Base64.encodeToString(imgBytes, Base64.DEFAULT)).apply()
                 }
-                // TODO key is "statistics" etc...
+
+                if (resultJSONObj.has("statistics")) {
+                    val statisticsObj = resultJSONObj.getJSONObject("statistics")
+                    chart.data = BarData(
+                        statisticsObj.getInt("face").toFloat(),
+                        statisticsObj.getInt("pupil").toFloat(),
+                        statisticsObj.getInt("finger").toFloat(),
+                        statisticsObj.getInt("text").toFloat(),
+                        statisticsObj.getInt("landmark").toFloat())
+                }
+
+                if (resultJSONObj.has("checks")) {
+                    val checksObj = resultJSONObj.getJSONObject("checks")
+                    checkMarkJSON.add(!checksObj.getBoolean("face")) //face
+                    checkMarkJSON.add(!checksObj.getBoolean("pupil"))  //pupil
+                    checkMarkJSON.add(!checksObj.getBoolean("finger")) //hand
+                    checkMarkJSON.add(!checksObj.getBoolean("text")) //char
+                    checkMarkJSON.add(!checksObj.getBoolean("landmark"))//landmark
+                }
 
                 handler.post {
                     enableMosaicButton(resultJSONObj.getJSONArray("mosaic_points").toString())
                     progressBar.isVisible = false
 
                     for (i in 0 until checkMarkJSON.size){
-                        checkIdItem[i].setImageResource(if (checkMarkJSON[i]){
+                        checkIdItem[i].setImageResource(if (checkMarkJSON[i]) {
                             R.drawable.ok
                         }else {
                             R.drawable.ng
@@ -262,21 +275,21 @@ class ScanActivity : AppCompatActivity() {
                         }
                     }
                 }
-                Log.d("[LOG] - DEBUG", resultJSONObj.toString())
+                Log.d("[LOG] - DEBUG", resultJSONObj.getJSONObject("advice").toString())
+                Log.d("[LOG] - DEBUG", resultJSONObj.getJSONObject("statistics").toString())
             }
         }.start()
 
         setupBarchart()
-        chart.data = BarData()
     }
 
-    private fun BarData(): BarData {
+    private fun BarData(face: Float, pupil: Float, hand: Float, char: Float, landmark: Float): BarData {
         val values = mutableListOf<BarEntry>()
-        val faceval = 100f
-        val pupilval = 120f
-        val handval = 10f
-        val charval = 110f
-        val landval = 130f
+        val faceval = face
+        val pupilval = pupil
+        val handval = hand
+        val charval = char
+        val landval = landmark
         values.add(BarEntry(1f,faceval))
         values.add(BarEntry(2f,pupilval))
         values.add(BarEntry(3f,handval))
