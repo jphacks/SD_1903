@@ -239,7 +239,7 @@ class ScanActivity : AppCompatActivity() {
                     enableMosaicButton(resultJSONObj.getJSONArray("mosaic_points").toString())
                     progressBar.isVisible = false
                 }
-                Log.d("[LOG] - DEBUG", resultJSONObj.toString())
+                Log.d("[LOG] - DEBUG", resultJSONObj.getJSONObject("advice").toString())
             }
         }.start()
 
