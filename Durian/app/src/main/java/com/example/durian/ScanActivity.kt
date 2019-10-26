@@ -74,33 +74,17 @@ class ScanActivity : AppCompatActivity() {
             }
         }
 
-        if (requestCode == CAMERA_INTENT && resultCode == Activity.RESULT_OK) {
-            val contentValues = ContentValues().apply {
-                put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-                put("_data", path)
-            }
-            contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+        if (requestCode == CAMERA_INTENT) {
+            if (resultCode == Activity.RESULT_OK) {
+                val contentValues = ContentValues().apply {
+                    put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+                    put("_data", path)
+                }
+                contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
 
-            try {
-                val inputStream = FileInputStream(File(path))
-                var bitmap = BitmapFactory.decodeStream(inputStream)
-                bitmap = resizeBitmap(bitmap)
-                detectionView.setImageBitmap(bitmap)
-
-                val byteBuffer = ByteArrayOutputStream()
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteBuffer)
-                visionAnnotation(byteBuffer.toByteArray())
-
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
-
-        if (requestCode == SELECTION_INTENT && resultCode == Activity.RESULT_OK) {
-            if (data != null) {
-                val uri = data.data
                 try {
-                    var bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
+                    val inputStream = FileInputStream(File(path))
+                    var bitmap = BitmapFactory.decodeStream(inputStream)
                     bitmap = resizeBitmap(bitmap)
                     detectionView.setImageBitmap(bitmap)
 
@@ -111,6 +95,30 @@ class ScanActivity : AppCompatActivity() {
                 } catch (e: IOException) {
                     e.printStackTrace()
                 }
+            } else {
+                finish()
+            }
+        }
+
+        if (requestCode == SELECTION_INTENT) {
+            if (resultCode == Activity.RESULT_OK) {
+                if (data != null) {
+                    val uri = data.data
+                    try {
+                        var bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
+                        bitmap = resizeBitmap(bitmap)
+                        detectionView.setImageBitmap(bitmap)
+
+                        val byteBuffer = ByteArrayOutputStream()
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteBuffer)
+                        visionAnnotation(byteBuffer.toByteArray())
+
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+                }
+            } else {
+                finish()
             }
         }
     }

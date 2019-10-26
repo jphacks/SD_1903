@@ -1,6 +1,9 @@
 package com.example.durian
 
 import android.Manifest
+import android.app.job.JobInfo
+import android.app.job.JobScheduler
+import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
@@ -33,6 +36,11 @@ class MainActivity : AppCompatActivity() {
             // パーミションを取得していない場合
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_PERMISSION_CAMERA)
         }
+
+        // 通知＆定期ジョブを設定
+        createChannel(this)
+
+
     }
 
     override fun onResume() {
@@ -58,6 +66,16 @@ class MainActivity : AppCompatActivity() {
 
             }
         }
+
+        val fetchJob = JobInfo.Builder(1, ComponentName(this, ScanJobService::class.java))
+            .setMinimumLatency(5000)
+            .setOverrideDeadline(10000)
+//            .setPeriodic(0)
+            .setPersisted(true)
+            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+            .build()
+
+        getSystemService(JobScheduler::class.java).schedule(fetchJob)
     }
 
     // パーミッション取得結果
