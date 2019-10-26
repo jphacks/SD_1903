@@ -26,46 +26,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <TextView
-        android:id="@+id/faceAdvice"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView"
-        tools:layout_editor_absoluteX="72dp"
-        tools:layout_editor_absoluteY="413dp" />
-
-    <TextView
-        android:id="@+id/pupilAdvice"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView"
-        tools:layout_editor_absoluteX="72dp"
-        tools:layout_editor_absoluteY="451dp" />
-
-    <TextView
-        android:id="@+id/handAdvice"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView"
-        tools:layout_editor_absoluteX="72dp"
-        tools:layout_editor_absoluteY="487dp" />
-
-    <TextView
-        android:id="@+id/charAdvice"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView"
-        tools:layout_editor_absoluteX="72dp"
-        tools:layout_editor_absoluteY="523dp" />
-
-    <TextView
-        android:id="@+id/landmarkAdvice"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView"
-        tools:layout_editor_absoluteX="72dp"
-        tools:layout_editor_absoluteY="563dp" />
-
     <ProgressBar
         android:id="@+id/scanProgressBar"
         style="@android:style/Widget.Holo.Light.ProgressBar.Large"

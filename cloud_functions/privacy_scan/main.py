@@ -11,6 +11,7 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"]='./TeamCras-1788b902cdf8.json'
 from google.cloud import storage
 
 GOOGLE_IMG_ANNOTATE_URL = 'https://vision.googleapis.com/v1/images:annotate'
+GOO_TEXT_ANNOTATE_URL = 'https://labs.goo.ne.jp/api/entity'
 
 def get_eye_point(res):
     landmarks = res['landmarks']
@@ -66,6 +67,9 @@ def privacy_scan(request):
         google_api_key = ''
         with open('google_api_key.txt', 'r') as txt:
             google_api_key = txt.read()
+        goo_api_key = ''
+        with open('goo_api_key.txt', 'r') as txt:
+            goo_api_key = txt.read()
         # StoreageからAPIkeyを取得  
         # api_blob = bucket.get_blob('google_api_key.txt')
         # google_api_key = api_blob.download_as_string().decode('utf-8')
@@ -230,9 +234,28 @@ def privacy_scan(request):
                     })
 
         if 'textAnnotations' in img_ann:
-            for text_info in img_ann['textAnnotations']:
+            for text_info in img_ann['textAnnotations'][:10]:
                 desc = text_info['description']
                 # TODO: 固有表現抽出
+                data = {
+                    'app_id': goo_api_key,
+                    'sentence': desc
+                }
+                response = requests.post(GOO_TEXT_ANNOTATE_URL, data=json.dumps(data).encode(), headers={'Content-Type': 'application/json'})
+                result_texts = response.json()['ne_list']
+                text_detected_list = []
+                for text_info in result_texts:
+                    if "ART" in text_info:
+                        # TODO 人工物検出
+                        text_detected_list.append("ART")
+                    elif "LOC" in text_info:
+                        # TODO 場所情報
+                        text_detected_list.append("LOG")
+                    elif "PSN" in text_info:
+                        # TODO 人物名検出
+                        text_detected_list.append("PSN")
+
+
                 # if 'text' not in statistics_dict:
                 #     statistics_dict['text'] = 0
                 # statistics_dict['text'] = statistics_dict['text'] + 1
