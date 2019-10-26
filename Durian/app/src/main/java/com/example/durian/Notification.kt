@@ -40,8 +40,8 @@ fun notifyWarning(context: Context, fileName:String, bitmap: Bitmap) {
     pref.edit().putString("notify_img_data_%s".format(uuid.toString()), Base64.encodeToString(imgBytesStream.toByteArray(), Base64.DEFAULT)).apply()
     // 通知をタップしたときに起動する画面
     val intent = Intent(context, MainActivity::class.java)
-    val pendingIntent = PendingIntent.getActivity(context, REQUEST_CODE, intent, PendingIntent.FLAG_ONE_SHOT)
     intent.putExtra("pref_key", "notify_img_data_%s".format(uuid.toString()))
+    val pendingIntent = PendingIntent.getActivity(context, REQUEST_CODE, intent, PendingIntent.FLAG_ONE_SHOT)
 
     val notification = NotificationCompat.Builder(context, CHANNEL_ID)
         .setContentTitle("画像に危険な情報が確認されました")

@@ -4,29 +4,84 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:background="@drawable/back_image"
+    >
 
-    <Button
-        android:id="@+id/camraButton"
-        android:layout_width="304dp"
-        android:layout_height="161dp"
-        android:text="@string/camera"
+
+    <ImageButton
+        android:id="@+id/cameraButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="72dp"
+        android:background="@drawable/top_button_frame"
+        android:elevation="20dp"
+        android:src="@drawable/ic_camera_alt_black_24dp"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.315" />
+        app:layout_constraintVertical_bias="0.719" />
 
-    <Button
+    <ImageButton
         android:id="@+id/pictureButton"
-        android:layout_width="304dp"
-        android:layout_height="161dp"
-        android:text="@string/gallery"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="72dp"
+        android:background="@drawable/top_button_frame"
+        android:elevation="20dp"
+        android:src="@drawable/ic_photo_library_black_24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.718" />
+
+    <TextView
+        android:id="@+id/cameraText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/cmLabel"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/cameraButton"
+        app:layout_constraintStart_toStartOf="@+id/cameraButton"
+        app:layout_constraintTop_toBottomOf="@+id/cameraButton" />
+
+    <TextView
+        android:id="@+id/pictureText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/picLabel"
+        android:textStyle="bold"
+        app:layout_constraintBaseline_toBaselineOf="@+id/cameraText"
+        app:layout_constraintEnd_toEndOf="@+id/pictureButton"
+        app:layout_constraintHorizontal_bias="0.486"
+        app:layout_constraintStart_toStartOf="@+id/pictureButton" />
+
+    <ImageView
+        android:id="@+id/Logo"
+        android:layout_width="0dp"
+        android:layout_height="106dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/top_logo"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.616" />
+        app:layout_constraintVertical_bias="0.292"
+        app:srcCompat="@drawable/ic_durian_logo_all_black"
+        tools:srcCompat="@drawable/ic_durian_logo_all_black" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/top_description"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/Logo"
+        app:layout_constraintStart_toStartOf="@+id/Logo"
+        app:layout_constraintTop_toBottomOf="@+id/Logo"
+        app:layout_constraintVertical_bias="0.052" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

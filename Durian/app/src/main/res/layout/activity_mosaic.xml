@@ -8,33 +8,15 @@
 
     <ImageView
         android:id="@+id/mosaicView"
-        android:layout_width="283dp"
-        android:layout_height="387dp"
-        android:layout_marginTop="32dp"
+        android:layout_width="0dp"
+        android:layout_height="600dp"
+        android:scaleType="centerInside"
+        android:padding="10dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.724"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:srcCompat="@tools:sample/avatars" />
-
-    <Button
-        android:id="@+id/backButton"
-        android:layout_width="109dp"
-        android:layout_height="89dp"
-        android:layout_marginStart="56dp"
-        android:layout_marginBottom="32dp"
-        android:text="@string/cancel"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/saveButton"
-        android:layout_width="109dp"
-        android:layout_height="89dp"
-        android:layout_marginEnd="57dp"
-        android:layout_marginBottom="32dp"
-        android:text="@string/save"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 
     <ProgressBar
         android:id="@+id/mosaicProgressBar"
@@ -45,5 +27,31 @@
         app:layout_constraintEnd_toEndOf="@+id/mosaicView"
         app:layout_constraintStart_toStartOf="@+id/mosaicView"
         app:layout_constraintTop_toTopOf="@+id/mosaicView" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/mosaicView">
+
+        <Button
+            android:id="@+id/saveButton"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_marginBottom="0.5dp"
+            android:background="@drawable/mosaic_btn"
+            android:text="@string/save_btn_text" />
+
+        <Button
+            android:id="@+id/backButton"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:background="@drawable/mosaic_btn"
+            android:text="@string/nosave_btn_text" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,34 +6,185 @@
     android:layout_height="match_parent"
     tools:context=".ScanActivity">
 
-    <ImageView
-        android:id="@+id/detectionView"
-        android:layout_width="240dp"
-        android:layout_height="332dp"
-        android:layout_marginTop="32dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/avatars" />
 
-    <Button
-        android:id="@+id/addMosaicButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
-        android:text="@string/do_mosaic"
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="735dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
 
-    <ProgressBar
-        android:id="@+id/scanProgressBar"
-        style="@android:style/Widget.Holo.Light.ProgressBar.Large"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@+id/detectionView"
-        app:layout_constraintEnd_toEndOf="@+id/detectionView"
-        app:layout_constraintStart_toStartOf="@+id/detectionView"
-        app:layout_constraintTop_toTopOf="@+id/detectionView" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="vertical">
 
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:id="@+id/detectionView"
+                        android:layout_width="match_parent"
+                        android:layout_height="600dp"
+                        android:scaleType="centerInside"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:srcCompat="@tools:sample/avatars" />
+
+                    <ProgressBar
+                        android:id="@+id/scanProgressBar"
+                        style="@android:style/Widget.Holo.Light.ProgressBar.Large"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintBottom_toBottomOf="@+id/detectionView"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="@+id/detectionView"
+                        app:layout_constraintTop_toTopOf="@+id/detectionView" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:textSize="22dp"
+                    android:layout_margin="20dp"
+                    android:text="@string/scan_result_label" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/faceIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    app:srcCompat="@drawable/ic_face_black_24dp" />
+
+                <ImageView
+                    android:id="@+id/pupilIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    app:srcCompat="@drawable/ic_remove_red_eye_black_24dp" />
+
+                <ImageView
+                    android:id="@+id/handIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    app:srcCompat="@drawable/ic_fingerprint_black_24dp" />
+
+                <ImageView
+                    android:id="@+id/charIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    app:srcCompat="@drawable/ic_format_size_black_24dp" />
+
+                <ImageView
+                    android:id="@+id/landmarkIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    app:srcCompat="@drawable/ic_location_city_black_24dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/faceCheck"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_margin="15dp"
+                    tools:srcCompat="@tools:sample/avatars" />
+
+                <ImageView
+                    android:id="@+id/pupilCheck"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_margin="15dp"
+                    tools:srcCompat="@tools:sample/avatars" />
+
+                <ImageView
+                    android:id="@+id/handCheck"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_margin="15dp"
+                    tools:srcCompat="@tools:sample/avatars" />
+
+                <ImageView
+                    android:id="@+id/charCheck"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_margin="15dp"
+                    tools:srcCompat="@tools:sample/avatars" />
+
+                <ImageView
+                    android:id="@+id/landmarkCheck"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_margin="15dp"
+                    tools:srcCompat="@tools:sample/avatars" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/scan_advice_label"
+                    android:textAlignment="center"
+                    android:textSize="22dp"
+                    android:layout_margin="20dp"
+                    tools:text="@string/scan_advice_label" />
+
+            </LinearLayout>
+
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/chart"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" >
+
+            </com.github.mikephil.charting.charts.BarChart>
+
+            <Button
+                android:id="@+id/addMosaicButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mosaic_Button" />
+
+        </LinearLayout>
+    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

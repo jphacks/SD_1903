@@ -172,7 +172,8 @@ def privacy_scan(request):
                     "top_y": top_y,
                     "end_x": end_x,
                     "end_y": end_y,
-                    "width": 10
+                    "width": 10,
+                    "color": (0, 0, 255)
                 })
 
                 # 自撮りだった場合のみモザイク対象
@@ -248,6 +249,9 @@ def privacy_scan(request):
                     if "ART" in text_info:
                         # TODO 人工物検出
                         text_detected_list.append("ART")
+                    elif "ORG" in text_info:
+                        # TODO 組織名検出
+                        text_detected_list.append("ORG")
                     elif "LOC" in text_info:
                         # TODO 場所情報
                         text_detected_list.append("LOG")
@@ -259,7 +263,8 @@ def privacy_scan(request):
                 # if 'text' not in statistics_dict:
                 #     statistics_dict['text'] = 0
                 # statistics_dict['text'] = statistics_dict['text'] + 1
-
+                
+                # 文字の座標を取得
                 text_point = text_info['boundingPoly']['vertices']
                 top_x = text_point[0]['x'] if 'x' in text_point[0] else 0
                 top_y = text_point[0]['y'] if 'y' in text_point[0] else 0

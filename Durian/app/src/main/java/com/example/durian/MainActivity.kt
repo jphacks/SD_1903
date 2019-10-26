@@ -10,13 +10,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageButton
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var cameraButton: Button
-    private lateinit var pictureButton: Button
+    private lateinit var cameraButton: ImageButton
+    private lateinit var pictureButton: ImageButton
 
     private val REQUEST_PERMISSION_CAMERA = 1
     private val REQUEST_PERMISSION_WRITEFILE = 2
@@ -26,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        cameraButton = findViewById(R.id.camraButton)
+        cameraButton = findViewById(R.id.cameraButton)
         pictureButton = findViewById(R.id.pictureButton)
 
         // カメラ, ファイルのアクセス許可
@@ -41,14 +42,30 @@ class MainActivity : AppCompatActivity() {
         createChannel(this)
 
         val fetchJob = JobInfo.Builder(1, ComponentName(this, ScanJobService::class.java))
-//            .setMinimumLatency(5000)
-//            .setOverrideDeadline(10000)
-            .setPeriodic(0)
+            .setMinimumLatency(5000)
+            .setOverrideDeadline(10000)
+//            .setPeriodic(0)
             .setPersisted(true)
             .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
             .build()
 
         getSystemService(JobScheduler::class.java).schedule(fetchJob)
+
+        // 通知からのIntent
+        val inteEx = intent.extras
+        if (inteEx != null) {
+            if ("pref_key" in inteEx.keySet()) {
+                Log.d("[LOG] DEBUG", "get pref_key from notification")
+                val nextIntent = Intent(this, ScanActivity::class.java)
+                nextIntent.putExtra("pref_key", intent.getStringExtra("pref_key"))
+                nextIntent.putExtra("to", "NOTIFICATION")
+                startActivity(nextIntent)
+            } else {
+                Log.d("[LOG] DEBUG", "not find pref_key in intent")
+            }
+        } else {
+            Log.d("[LOG] DEBUG", "not find intent")
+        }
     }
 
     override fun onResume() {
@@ -64,19 +81,6 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, ScanActivity::class.java)
             intent.putExtra("to", "PICTURES")
             startActivity(intent)
-        }
-
-
-        // 通知からのIntent
-        val inteEx = intent.extras
-        if (inteEx != null) {
-            if ("pref_key" in inteEx.keySet()) {
-                Log.d("[LOG] DEBUG", "get pref_key from notification")
-                val nextIntent = Intent(this, ScanActivity::class.java)
-                nextIntent.putExtra("pref_key", intent.getStringExtra("pref_key"))
-                nextIntent.putExtra("to", "NOTIFICATION")
-                startActivity(nextIntent)
-            }
         }
     }
 

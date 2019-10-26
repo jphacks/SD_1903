@@ -13,10 +13,7 @@ import android.os.Handler
 import android.provider.MediaStore
 import android.util.Base64
 import android.util.Log
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.Toast
+import android.widget.*
 import androidx.core.view.isVisible
 import org.json.JSONArray
 import org.json.JSONObject
