@@ -6,4 +6,28 @@
     android:layout_height="match_parent"
     tools:context=".MosaicActivity">
 
+    <ImageView
+        android:id="@+id/mosaicView"
+        android:layout_width="283dp"
+        android:layout_height="387dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="47dp"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <Button
+        android:id="@+id/backButton"
+        android:layout_width="109dp"
+        android:layout_height="89dp"
+        android:text="Button"
+        tools:layout_editor_absoluteX="56dp"
+        tools:layout_editor_absoluteY="529dp" />
+
+    <Button
+        android:id="@+id/saveButton"
+        android:layout_width="109dp"
+        android:layout_height="89dp"
+        android:text="Button"
+        tools:layout_editor_absoluteX="245dp"
+        tools:layout_editor_absoluteY="529dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>
