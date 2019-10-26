@@ -1,11 +1,9 @@
 package com.example.durian
 
-import android.Manifest
 import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 
@@ -19,10 +17,10 @@ import android.provider.MediaStore
 import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.view.isVisible
 import org.json.JSONObject
 import java.io.*
 import java.net.URL
@@ -33,6 +31,7 @@ class ScanActivity : AppCompatActivity() {
 
     private lateinit var detectionView: ImageView
     private lateinit var addMosaicButton: Button
+    private lateinit var progressBar: ProgressBar
 
     private val CAMERA_INTENT = 1
     private val SELECTION_INTENT = 2
@@ -47,23 +46,31 @@ class ScanActivity : AppCompatActivity() {
         detectionView = findViewById(R.id.detectionView)
         addMosaicButton = findViewById(R.id.addMosaicButton)
         addMosaicButton.isEnabled = false
+        progressBar = this.findViewById(R.id.scanProgressBar)
+        progressBar.isVisible = false
 
         val toStr = intent.getStringExtra("to") ?: ""
         when (toStr) {
             "CAMERA" -> {
+                // カメラへのリクエスト
                 Intent(MediaStore.ACTION_IMAGE_CAPTURE).resolveActivity(packageManager)?.let {
                     takePicture()
                 } ?: turnBack("CAMERA")
             }
             "PICTURES" -> {
+                // ギャラリーへのリクエスト
                 val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
                 intent.addCategory(Intent.CATEGORY_OPENABLE)
                 intent.type = "image/*"
                 startActivityForResult(intent, SELECTION_INTENT)
             }
             "NOTIFICATION" -> {
+                // 通知からのリクエスト
+                // prefからBase64形式の画像を取得
                 val pref = getSharedPreferences("tmpShared", Context.MODE_PRIVATE)
-                val imgStr = pref.getString("notify_img_data", "")
+                // prefのkeyはintentから取得
+                val prefKey = intent.getStringExtra("pref_key") ?: ""
+                val imgStr = pref.getString(prefKey, "")
                 if (imgStr != null) {
                     val imgBytes = Base64.decode(imgStr, Base64.DEFAULT)
                     val imgByteStream = ByteArrayInputStream(imgBytes)
@@ -71,6 +78,8 @@ class ScanActivity : AppCompatActivity() {
                     detectionView.setImageBitmap(img)
 
                     visionAnnotation(imgBytes)
+
+                    pref.edit().remove(prefKey)
                 }
             }
         }
@@ -184,6 +193,8 @@ class ScanActivity : AppCompatActivity() {
     }
 
     private fun visionAnnotation(imgBytes: ByteArray) {
+        progressBar.isVisible = true
+
         val handler = Handler()
 
         val url = URL("https://us-central1-crasproject.cloudfunctions.net/privacy_scan")
@@ -207,8 +218,8 @@ class ScanActivity : AppCompatActivity() {
 
                 handler.post {
                     enableMosaicButton(resultJSONObj.getJSONArray("mosaic_points").toString())
+                    progressBar.isVisible = false
                 }
-
                 Log.d("[LOG] - DEBUG", resultJSONObj.toString())
             }
         }.start()

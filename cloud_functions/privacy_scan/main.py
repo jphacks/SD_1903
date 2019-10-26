@@ -156,18 +156,19 @@ def privacy_scan(request):
                 top_y = face_point[0]['y'] if 'y' in face_point[0] else 0
                 end_x = face_point[2]['x'] if 'x' in face_point[2] else 0
                 end_y = face_point[2]['y'] if 'y' in face_point[2] else 0
-                img = cv2.rectangle(
-                    img,
-                    (top_x, top_y),
-                    (end_x, end_y),
-                    (0, 0, 255),
-                    10)
+                # img = cv2.rectangle(
+                #     img,
+                #     (top_x, top_y),
+                #     (end_x, end_y),
+                #     (0, 0, 255),
+                #     10)
                 return_mosaic_dict.append({
                     "name": "face",
                     "top_x": top_x,
                     "top_y": top_y,
                     "end_x": end_x,
-                    "end_y": end_y
+                    "end_y": end_y,
+                    "width": 10
                 })
 
                 # 自撮りだった場合のみモザイク対象
@@ -198,31 +199,34 @@ def privacy_scan(request):
                             r_eye_end_x = int(mark['position']['x'])
                         if mark['type'] == "RIGHT_EYE_LEFT_CORNER":
                             r_eye_top_x = int(mark['position']['x'])
-                    img = cv2.rectangle(
-                        img, 
-                        (l_eye_top_x, l_eye_top_y),
-                        (l_eye_end_x, l_eye_end_y),
-                        (57, 108, 236),
-                        2)
-                    img = cv2.rectangle(
-                        img, 
-                        (r_eye_top_x, r_eye_top_y),
-                        (r_eye_end_x, r_eye_end_y),
-                        (57, 108, 236),
-                        2)
+                    # img = cv2.rectangle(
+                    #     img, 
+                    #     (l_eye_top_x, l_eye_top_y),
+                    #     (l_eye_end_x, l_eye_end_y),
+                    #     (57, 108, 236),
+                    #     2)
+                    # img = cv2.rectangle(
+                    #     img, 
+                    #     (r_eye_top_x, r_eye_top_y),
+                    #     (r_eye_end_x, r_eye_end_y),
+                    #     (57, 108, 236),
+                    #     2)
                     return_mosaic_dict.append({
                         "name": "pupil",
                         "top_x": l_eye_top_x,
                         "top_y": l_eye_top_y,
                         "end_x": l_eye_end_x,
-                        "end_y": l_eye_end_y
+                        "end_y": l_eye_end_y,
+                        "width": 2
                     })
                     return_mosaic_dict.append({
                         "name": "pupil",
                         "top_x": r_eye_top_x,
                         "top_y": r_eye_top_y,
                         "end_x": r_eye_end_x,
-                        "end_y": r_eye_end_y
+                        "end_y": r_eye_end_y,
+                        "width": 2,
+                        "color": (57, 108, 236)
                     })
 
         if 'textAnnotations' in img_ann:
@@ -238,20 +242,23 @@ def privacy_scan(request):
                 top_y = text_point[0]['y'] if 'y' in text_point[0] else 0
                 end_x = text_point[2]['x'] if 'x' in text_point[2] else 0
                 end_y = text_point[2]['y'] if 'y' in text_point[2] else 0
-                img = cv2.rectangle(
-                    img, 
-                    (top_x, top_y),
-                    (end_x, end_y),
-                    (0, 255, 0),
-                    5)
+                # img = cv2.rectangle(
+                #     img, 
+                #     (top_x, top_y),
+                #     (end_x, end_y),
+                #     (0, 255, 0),
+                #     5)
                 return_mosaic_dict.append({
                     "name": "text",
                     "top_x": top_x,
                     "top_y": top_y,
                     "end_x": end_x,
-                    "end_y": end_y
+                    "end_y": end_y,
+                    "width": 5,
+                    "color": (0, 255, 0)
                 })
 
+        # return_mosaic_dictの整理（消す座標は消す）
         if 'Selfie' in check_label_list:
             # 自撮りの場合
             # 最もサイズが大きい顔は除外
@@ -263,9 +270,17 @@ def privacy_scan(request):
                     big_size = size
                     index = i
             del return_mosaic_dict[index]
+            
 
+        # モザイク処理
+        for mosaic_point in return_mosaic_dict:
+            img = cv2.rectangle(
+                img, 
+                (mosaic_point["top_x"], mosaic_point["top_y"]),
+                (mosaic_point["end_x"], mosaic_point["end_y"]),
+                mosaic_point['color'],
+                mosaic_point["width"])
         
-
         # 統計データ更新
         db_json['statistics'] = statistics_dict
         db_blob.upload_from_string(json.dumps(db_json))

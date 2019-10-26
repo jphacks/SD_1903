@@ -11,6 +11,8 @@ import android.graphics.drawable.Icon
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import java.util.*
+import android.util.Base64
+import java.io.ByteArrayOutputStream
 
 private val CHANNEL_ID = "ScanImage"
 private val NOTIFICATION_ID = 1
@@ -31,10 +33,15 @@ fun createChannel(context: Context) {
 
 fun notifyWarning(context: Context, fileName:String, bitmap: Bitmap) {
     val uuid = UUID.randomUUID().hashCode()
+    // SharedPreferencesに一時保存
+    val pref = context.getSharedPreferences("tmpShared", Context.MODE_PRIVATE)
+    val imgBytesStream = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, imgBytesStream)
+    pref.edit().putString("notify_img_data_%s".format(uuid.toString()), Base64.encodeToString(imgBytesStream.toByteArray(), Base64.DEFAULT)).apply()
     // 通知をタップしたときに起動する画面
     val intent = Intent(context, MainActivity::class.java)
-    intent.putExtra("key", "hogehoge")
     val pendingIntent = PendingIntent.getActivity(context, REQUEST_CODE, intent, PendingIntent.FLAG_ONE_SHOT)
+    intent.putExtra("pref_key", "notify_img_data_%s".format(uuid.toString()))
 
     val notification = NotificationCompat.Builder(context, CHANNEL_ID)
         .setContentTitle("画像に危険な情報が確認されました")
@@ -44,7 +51,7 @@ fun notifyWarning(context: Context, fileName:String, bitmap: Bitmap) {
         .setStyle(NotificationCompat.BigPictureStyle().bigPicture(bitmap))
         .setLargeIcon(bitmap)
         .setGroupSummary(false)
-        .setSmallIcon(R.mipmap.durian_launcher_foreground)
+        .setSmallIcon(R.mipmap.durian_launcher_transparent_foreground)
         .setAutoCancel(true)
         .build()
 

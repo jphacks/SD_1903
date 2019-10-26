@@ -70,8 +70,11 @@ class MainActivity : AppCompatActivity() {
         // 通知からのIntent
         val inteEx = intent.extras
         if (inteEx != null) {
-            if ("key" in inteEx.keySet()) {
-
+            if ("pref_key" in inteEx.keySet()) {
+                val nextIntent = Intent(this, ScanActivity::class.java)
+                nextIntent.putExtra("pref_key", intent.getStringExtra("pref_key"))
+                nextIntent.putExtra("to", "NOTIFICATION")
+                startActivity(nextIntent)
             }
         }
     }

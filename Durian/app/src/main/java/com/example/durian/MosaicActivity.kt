@@ -15,7 +15,9 @@ import android.util.Base64
 import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.core.view.isVisible
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.ByteArrayInputStream
@@ -28,6 +30,7 @@ class MosaicActivity : AppCompatActivity() {
     private lateinit var mosaicView: ImageView
     private lateinit var saveButton: Button
     private lateinit var backButton: Button
+    private lateinit var progressBar: ProgressBar
 
     private val REQUEST_SAVE_IMAGE = 1
 
@@ -38,6 +41,8 @@ class MosaicActivity : AppCompatActivity() {
         mosaicView = findViewById(R.id.mosaicView)
         saveButton = findViewById(R.id.saveButton)
         backButton = findViewById(R.id.backButton)
+        progressBar = findViewById(R.id.mosaicProgressBar)
+        progressBar.isVisible = false
 
         val pref = getSharedPreferences("tmpShared", Context.MODE_PRIVATE)
         val imgStr = pref.getString("tmp_img", "")
@@ -119,6 +124,8 @@ class MosaicActivity : AppCompatActivity() {
     }
 
     private fun mosaicProcess(imgBytes: ByteArray, mosaicPoints: String) {
+        progressBar.isVisible = true
+
         val handler = Handler()
         Thread {
             val url = URL("https://us-central1-crasproject.cloudfunctions.net/mosaic_process")
@@ -134,6 +141,7 @@ class MosaicActivity : AppCompatActivity() {
                     val imgByteStream = ByteArrayInputStream(imgByte)
                     handler.post {
                         mosaicView.setImageBitmap(BitmapFactory.decodeStream(imgByteStream))
+                        progressBar.isVisible = false
                     }
                 } else {
                     Log.d("[Log] onActivityResult", "img key is not find.")

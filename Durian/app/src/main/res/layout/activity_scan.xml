@@ -66,4 +66,14 @@
         tools:layout_editor_absoluteX="72dp"
         tools:layout_editor_absoluteY="563dp" />
 
+    <ProgressBar
+        android:id="@+id/scanProgressBar"
+        style="@android:style/Widget.Holo.Light.ProgressBar.Large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/detectionView"
+        app:layout_constraintEnd_toEndOf="@+id/detectionView"
+        app:layout_constraintStart_toStartOf="@+id/detectionView"
+        app:layout_constraintTop_toTopOf="@+id/detectionView" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
