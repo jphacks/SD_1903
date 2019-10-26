@@ -9,9 +9,10 @@
     <ImageView
         android:id="@+id/mosaicView"
         android:layout_width="0dp"
-        android:layout_height="600dp"
-        android:scaleType="centerInside"
+        android:layout_height="0dp"
         android:padding="10dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.724"
         app:layout_constraintStart_toStartOf="parent"
@@ -29,19 +30,21 @@
         app:layout_constraintTop_toTopOf="@+id/mosaicView" />
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="177dp"
         android:gravity="center_horizontal"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mosaicView">
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent">
 
         <Button
             android:id="@+id/saveButton"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
             android:layout_marginBottom="0.5dp"
             android:background="@drawable/mosaic_btn"
             android:text="@string/save_btn_text" />
@@ -49,7 +52,8 @@
         <Button
             android:id="@+id/backButton"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
             android:background="@drawable/mosaic_btn"
             android:text="@string/nosave_btn_text" />
     </LinearLayout>

@@ -11,7 +11,7 @@
     <string name="save_btn_text">保存する</string>
     <string name="nosave_btn_text">保存しない</string>
     <string name="top_description">Detect your information and negligence</string>
-    <string name="scan_advice_label">Advice</string>
+    <string name="scan_advice_label">ユーザー全体の検出数</string>
     <string name="scan_result_label">Result</string>
     <string name="mosaic_Button">モザイクをかける</string>
 </resources>

@@ -9,7 +9,7 @@
 
     <ScrollView
         android:layout_width="0dp"
-        android:layout_height="735dp"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -35,11 +35,13 @@
                         android:id="@+id/detectionView"
                         android:layout_width="match_parent"
                         android:layout_height="600dp"
-                        android:scaleType="centerInside"
+                        android:scaleType="fitCenter"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.0"
                         tools:srcCompat="@tools:sample/avatars" />
 
                     <ProgressBar
@@ -124,35 +126,35 @@
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:layout_margin="15dp"
-                    tools:srcCompat="@tools:sample/avatars" />
+                    />
 
                 <ImageView
                     android:id="@+id/pupilCheck"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:layout_margin="15dp"
-                    tools:srcCompat="@tools:sample/avatars" />
+                    />
 
                 <ImageView
                     android:id="@+id/handCheck"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:layout_margin="15dp"
-                    tools:srcCompat="@tools:sample/avatars" />
+                    />
 
                 <ImageView
                     android:id="@+id/charCheck"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:layout_margin="15dp"
-                    tools:srcCompat="@tools:sample/avatars" />
+                    />
 
                 <ImageView
                     android:id="@+id/landmarkCheck"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:layout_margin="15dp"
-                    tools:srcCompat="@tools:sample/avatars" />
+                    />
             </LinearLayout>
 
             <LinearLayout
@@ -175,16 +177,18 @@
             <com.github.mikephil.charting.charts.BarChart
                 android:id="@+id/chart"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" >
+                android:layout_height="320dp"
+                android:layout_margin="20dp">
 
             </com.github.mikephil.charting.charts.BarChart>
 
             <Button
                 android:id="@+id/addMosaicButton"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/mosaic_Button" />
-
+                android:background="@drawable/mosaic_btn"
+                android:text="@string/mosaic_Button"
+                android:layout_margin="20dp"/>
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
