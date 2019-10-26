@@ -1,5 +1,10 @@
 <resources>
     <string name="app_name">Durian</string>
+    <string name="camera">写真を取ってスキャン</string>
+    <string name="gallery">選択してスキャン</string>
+    <string name="do_mosaic">モザイクをかける</string>
+    <string name="cancel">キャンセル</string>
+    <string name="save">保存する</string>
     <string name="cmLabel">CAMERA</string>
     <string name="picLabel">PICTURE</string>
     <string name="select_btn_description">Slected below</string>
