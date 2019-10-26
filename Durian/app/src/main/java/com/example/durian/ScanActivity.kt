@@ -84,7 +84,7 @@ class ScanActivity : AppCompatActivity() {
             try {
                 val inputStream = FileInputStream(File(path))
                 var bitmap = BitmapFactory.decodeStream(inputStream)
-                resizeBitmap(bitmap)
+                bitmap = resizeBitmap(bitmap)
                 detectionView.setImageBitmap(bitmap)
 
                 val byteBuffer = ByteArrayOutputStream()
@@ -101,7 +101,7 @@ class ScanActivity : AppCompatActivity() {
                 val uri = data.data
                 try {
                     var bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
-                    resizeBitmap(bitmap)
+                    bitmap = resizeBitmap(bitmap)
                     detectionView.setImageBitmap(bitmap)
 
                     val byteBuffer = ByteArrayOutputStream()

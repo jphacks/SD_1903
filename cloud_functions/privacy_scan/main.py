@@ -12,6 +12,29 @@ from google.cloud import storage
 
 GOOGLE_IMG_ANNOTATE_URL = 'https://vision.googleapis.com/v1/images:annotate'
 
+def get_eye_point(res):
+    landmarks = res['landmarks']
+    eye_top_x = 0
+    eye_top_y = 0
+    eye_end_x = 0
+    eye_end_y = 0
+    for mark in landmarks:
+        if mark['type'] == "LEFT_EYE_TOP_BOUNDARY":
+            eye_top_y = int(mark['position']['y'])
+        if mark['type'] == "LEFT_EYE_BOTTOM_BOUNDARY":
+            eye_end_y = int(mark['position']['y'])
+        if mark['type'] == "LEFT_EYE_RIGHT_CORNER":
+            eye_end_x = int(mark['position']['x'])
+        if mark['type'] == "LEFT_EYE_LEFT_CORNER":
+            eye_top_x = int(mark['position']['x'])
+    eye_top = (eye_top_x, eye_top_y)
+    eye_end = (eye_end_x, eye_end_y)
+
+# テキスト判別
+def textAnalyze(text):
+    text = text.replace(' ', '')
+    response = requests.post("")
+
 def privacy_scan(request):
     """Responds to any HTTP request.
     Args:
@@ -33,15 +56,19 @@ def privacy_scan(request):
         client = storage.Client()
         bucket = client.get_bucket('cras_storage')
         # https://console.cloud.google.com/storage/browser/[bucket-id]/
-        blob = bucket.get_blob('durian_db.json')
-        db_json = json.loads(blob.download_as_string().decode('utf-8'))
+        db_blob = bucket.get_blob('durian_db.json')
+        db_json = json.loads(db_blob.download_as_string().decode('utf-8'))
         if 'statistics' not in db_json:
             db_json['statistics'] = {}
         statistics_dict = db_json['statistics']
 
-        # StoreageからAPIkeyを取得
-        blob = bucket.get_blob('google_api_key.txt')
-        google_api_key = blob.download_as_string().decode('utf-8')
+        # APIKey取得
+        google_api_key = ''
+        with open('google_api_key.txt', 'r') as txt:
+            google_api_key = txt.read()
+        # StoreageからAPIkeyを取得  
+        # api_blob = bucket.get_blob('google_api_key.txt')
+        # google_api_key = api_blob.download_as_string().decode('utf-8')
 
         # スキャンする画像を取得 -> ndarrayに変換
         image_requests = []
@@ -84,10 +111,150 @@ def privacy_scan(request):
                         params={'key': google_api_key},
                         headers={'Content-Type': 'application/json'})
 
+        check_label_list = []
+        return_mosaic_dict = []
+
         res_json = response.json()["responses"]
         img_ann = res_json[0]
 
-        res = helpers.make_response(json.dumps(response.json()).encode(), 200)
+        # ラベル解析結果
+        if 'labelAnnotations' in img_ann:
+            for label_info in img_ann['labelAnnotations']:
+                if label_info["score"] < 0.5:
+                    continue
+                desc = label_info["description"]
+                if desc == "Selfie":
+                    # 自撮り
+                    check_label_list.append("Selfie")
+                    # TODO: 瞳警戒
+                    # TODO: 背景警戒
+                    # TODO: 文字警告
+                if desc == "V Sign":
+                    # Vサイン
+                    check_label_list.append("V Sign")
+                    # TODO: 指紋警戒
+                    print()
+                if desc == "Screen" or desc == "Laptop":
+                    check_label_list.append("Screen")
+                    # 画面
+                    # TODO: 文字警告
+                    print()
+
+
+        if 'faceAnnotations' in img_ann:
+            # 顔検出に引っかかったら統計データ更新
+            if 'face' not in statistics_dict:
+                statistics_dict['face'] = 0
+            statistics_dict['face'] = statistics_dict['face'] + 1
+            if 'pupil' not in statistics_dict:
+                statistics_dict['pupil'] = 0
+            statistics_dict['pupil'] = statistics_dict['pupil'] + 1
+
+            for face_info in img_ann['faceAnnotations']:
+                face_point = face_info['fdBoundingPoly']['vertices']
+                top_x = face_point[0]['x'] if 'x' in face_point[0] else 0
+                top_y = face_point[0]['y'] if 'y' in face_point[0] else 0
+                end_x = face_point[2]['x'] if 'x' in face_point[2] else 0
+                end_y = face_point[2]['y'] if 'y' in face_point[2] else 0
+                img = cv2.rectangle(
+                    img,
+                    (top_x, top_y),
+                    (end_x, end_y),
+                    (0, 0, 255),
+                    10)
+                return_mosaic_dict.append({
+                    "name": "face",
+                    "top_x": top_x,
+                    "top_y": top_y,
+                    "end_x": end_x,
+                    "end_y": end_y
+                })
+
+                # 自撮りだった場合のみモザイク対象
+                if 'Selfie' in check_label_list:
+                    landmarks = face_info['landmarks']
+                    eye_top_x = 0
+                    eye_top_y = 0
+                    eye_end_x = 0
+                    eye_end_y = 0
+                    for mark in landmarks:
+                        if mark['type'] == "LEFT_EYE_TOP_BOUNDARY":
+                            eye_top_y = int(mark['position']['y'])
+                        if mark['type'] == "LEFT_EYE_BOTTOM_BOUNDARY":
+                            eye_end_y = int(mark['position']['y'])
+                        if mark['type'] == "LEFT_EYE_RIGHT_CORNER":
+                            eye_end_x = int(mark['position']['x'])
+                        if mark['type'] == "LEFT_EYE_LEFT_CORNER":
+                            eye_top_x = int(mark['position']['x'])
+                    img = cv2.rectangle(
+                        img, 
+                        (eye_top_x, eye_top_y),
+                        (eye_end_x, eye_end_y),
+                        (57, 108, 236),
+                        2)
+                    return_mosaic_dict.append({
+                        "name": "pupil",
+                        "top_x": eye_top_x,
+                        "top_y": eye_top_y,
+                        "end_x": eye_end_x,
+                        "end_y": eye_end_y
+                    })
+
+        if 'textAnnotations' in img_ann:
+            for text_info in img_ann['textAnnotations']:
+                desc = text_info['description']
+                # TODO: 固有表現抽出
+                # if 'text' not in statistics_dict:
+                #     statistics_dict['text'] = 0
+                # statistics_dict['text'] = statistics_dict['text'] + 1
+
+                text_point = text_info['boundingPoly']['vertices']
+                top_x = text_point[0]['x'] if 'x' in text_point[0] else 0
+                top_y = text_point[0]['y'] if 'y' in text_point[0] else 0
+                end_x = text_point[2]['x'] if 'x' in text_point[2] else 0
+                end_y = text_point[2]['y'] if 'y' in text_point[2] else 0
+                img = cv2.rectangle(
+                    img, 
+                    (top_x, top_y),
+                    (end_x, end_y),
+                    (0, 255, 0),
+                    5)
+                return_mosaic_dict.append({
+                    "name": "text",
+                    "top_x": top_x,
+                    "top_y": top_y,
+                    "end_x": end_x,
+                    "end_y": end_y
+                })
+
+
+        if 'Selfie' in check_label_list:
+            # 自撮りの場合
+            # 最もサイズが大きい顔は除外
+            index = 0
+            big_size = 0
+            for i, p_info in enumerate(return_mosaic_dict):
+                size = (p_info['end_x'] - p_info['top_x']) * (p_info['end_y'] - p_info['top_y'])
+                if size > big_size:
+                    big_size = size
+                    index = i
+            del return_mosaic_dict[index]
+
+        # 統計データ更新
+        db_json['statistics'] = statistics_dict
+        db_blob.upload_from_string(json.dumps(db_json))
+
+        # レスポンスデータ作成
+        result, img_bytes = cv2.imencode('.jpg', img)
+        json_data = {
+            'img': b64encode(img_bytes).decode(),
+            'statistics': statistics_dict,
+            'mosaic_points': return_mosaic_dict,
+            'advice': "SNSへの投稿は慎重に！%s" % (db_blob.download_as_string().decode('utf-8'))
+        }
+
+        # レスポンス
+        res = helpers.make_response(json.dumps(json_data).encode(), 200)
         res.headers["Content-type"] = "application/json"
         return res
 
