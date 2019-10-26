@@ -3,6 +3,7 @@ package com.example.durian
 import android.Manifest
 import android.app.Activity
 import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -12,15 +13,19 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
-
+import android.os.Handler
+import android.util.Base64
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import org.json.JSONObject
 import java.io.*
+import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -79,12 +84,12 @@ class ScanActivity : AppCompatActivity() {
             try {
                 val inputStream = FileInputStream(File(path))
                 var bitmap = BitmapFactory.decodeStream(inputStream)
-                // TODO 画像サイズ変えるかも
+                resizeBitmap(bitmap)
                 detectionView.setImageBitmap(bitmap)
 
                 val byteBuffer = ByteArrayOutputStream()
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteBuffer)
-                // TODO 画像解析リクエスト
+                visionAnnotation(byteBuffer.toByteArray())
 
             } catch (e: IOException) {
                 e.printStackTrace()
@@ -96,12 +101,12 @@ class ScanActivity : AppCompatActivity() {
                 val uri = data.data
                 try {
                     var bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
-                    // TODO 画像サイズ変えるかも
+                    resizeBitmap(bitmap)
                     detectionView.setImageBitmap(bitmap)
 
                     val byteBuffer = ByteArrayOutputStream()
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteBuffer)
-                    // TODO 画像解析リクエスト
+                    visionAnnotation(byteBuffer.toByteArray())
 
                 } catch (e: IOException) {
                     e.printStackTrace()
@@ -155,5 +160,35 @@ class ScanActivity : AppCompatActivity() {
                 Toast.makeText(this, "カメラがありません", Toast.LENGTH_SHORT)
             }
         }
+    }
+
+    private fun visionAnnotation(imgBytes: ByteArray) {
+        val handler = Handler()
+        val url = URL("https://us-central1-crasproject.cloudfunctions.net/privacy_scan")
+        val postJson = JSONObject()
+        postJson.put("img", Base64.encodeToString(imgBytes, Base64.DEFAULT))
+
+        Thread {
+            val resultJSONObj = cloudFunRequest(url, postJson.toString())
+
+            if (resultJSONObj != null) {
+                if (resultJSONObj.has("img")) {
+                    val imgStr = resultJSONObj.getString("img")
+                    val imgByte = Base64.decode(imgStr, Base64.DEFAULT)
+                    val imgByteStream = ByteArrayInputStream(imgByte)
+                    detectionView.setImageBitmap(BitmapFactory.decodeStream(imgByteStream))
+
+                    val pref = getSharedPreferences("tmpShared", Context.MODE_PRIVATE)
+                    pref.edit().putString("tmp_img", Base64.encodeToString(imgBytes, Base64.DEFAULT)).apply()
+                }
+                // TODO key is "statistics" etc...
+
+                Log.d("[LOG] - DEBUG", resultJSONObj.toString())
+            }
+
+            handler.post {
+                enableMosaicButton()
+            }
+        }.start()
     }
 }

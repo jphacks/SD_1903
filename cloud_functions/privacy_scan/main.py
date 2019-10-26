@@ -26,20 +26,22 @@ def privacy_scan(request):
         return request.args.get('message')
     elif request_json and 'message' in request_json:
         return request_json['message']
+
     elif request_json and 'img' in request_json:
-        google_api_key = ''
-        with open('google_api_key.txt', 'r') as txt:
-            goo_api_key = txt.read()
 
         # Storageから統計データを取得
         client = storage.Client()
         bucket = client.get_bucket('cras_storage')
         # https://console.cloud.google.com/storage/browser/[bucket-id]/
-        blob = bucket.get_blob('cras_storage')
+        blob = bucket.get_blob('durian_db.json')
         db_json = json.loads(blob.download_as_string().decode('utf-8'))
         if 'statistics' not in db_json:
             db_json['statistics'] = {}
         statistics_dict = db_json['statistics']
+
+        # StoreageからAPIkeyを取得
+        blob = bucket.get_blob('google_api_key.txt')
+        google_api_key = blob.download_as_string().decode('utf-8')
 
         # スキャンする画像を取得 -> ndarrayに変換
         image_requests = []
@@ -49,7 +51,7 @@ def privacy_scan(request):
         img = cv2.imdecode(nparr, cv2.IMREAD_ANYCOLOR)
 
         image_requests.append({
-            'image': ctxt,
+            'image': {'content': ctxt},
             'features': [
                 {
                     'type': 'LABEL_DETECTION',
@@ -81,6 +83,9 @@ def privacy_scan(request):
                         data=json.dumps({"requests": image_requests}).encode(),
                         params={'key': google_api_key},
                         headers={'Content-Type': 'application/json'})
+
+        res_json = response.json()["responses"]
+        img_ann = res_json[0]
 
         res = helpers.make_response(json.dumps(response.json()).encode(), 200)
         res.headers["Content-type"] = "application/json"
