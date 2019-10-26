@@ -30,6 +30,7 @@ class ScanActivity : AppCompatActivity() {
     private lateinit var addMosaicButton: Button
 
     private val CAMERA_INTENT = 1
+    private val SELECTION_INTENT = 2
 
     private var path = ""
 
@@ -46,7 +47,10 @@ class ScanActivity : AppCompatActivity() {
                 takePicture()
             } ?: turnBack("CAMERA")
         } else if (toStr == "PICTURES") {
-
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+            intent.addCategory(Intent.CATEGORY_OPENABLE)
+            intent.type = "image/*"
+            startActivityForResult(intent, SELECTION_INTENT)
         }
     }
 
@@ -72,6 +76,24 @@ class ScanActivity : AppCompatActivity() {
 
             } catch (e: IOException) {
                 e.printStackTrace()
+            }
+        }
+
+        if (requestCode == SELECTION_INTENT && resultCode == Activity.RESULT_OK) {
+            if (data != null) {
+                val uri = data.data
+                try {
+                    var bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
+                    // TODO 画像サイズ変えるかも
+                    detectionView.setImageBitmap(bitmap)
+
+                    val byteBuffer = ByteArrayOutputStream()
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteBuffer)
+                    // TODO 画像解析リクエスト
+
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
             }
         }
     }
