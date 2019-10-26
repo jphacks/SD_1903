@@ -14,7 +14,7 @@ import java.util.*
 
 private val CHANNEL_ID = "ScanImage"
 private val NOTIFICATION_ID = 1
-private val REQUEST_CODE = 1
+private val REQUEST_CODE = 10
 private val GROUP_KEY = "SCAN_IMAGES"
 
 fun createChannel(context: Context) {

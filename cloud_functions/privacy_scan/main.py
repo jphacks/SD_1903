@@ -173,31 +173,56 @@ def privacy_scan(request):
                 # 自撮りだった場合のみモザイク対象
                 if 'Selfie' in check_label_list:
                     landmarks = face_info['landmarks']
-                    eye_top_x = 0
-                    eye_top_y = 0
-                    eye_end_x = 0
-                    eye_end_y = 0
+                    l_eye_top_x = 0
+                    l_eye_top_y = 0
+                    l_eye_end_x = 0
+                    l_eye_end_y = 0
+                    r_eye_top_x = 0
+                    r_eye_top_y = 0
+                    r_eye_end_x = 0
+                    r_eye_end_y = 0
                     for mark in landmarks:
                         if mark['type'] == "LEFT_EYE_TOP_BOUNDARY":
-                            eye_top_y = int(mark['position']['y'])
+                            l_eye_top_y = int(mark['position']['y'])
                         if mark['type'] == "LEFT_EYE_BOTTOM_BOUNDARY":
-                            eye_end_y = int(mark['position']['y'])
+                            l_eye_end_y = int(mark['position']['y'])
                         if mark['type'] == "LEFT_EYE_RIGHT_CORNER":
-                            eye_end_x = int(mark['position']['x'])
+                            l_eye_end_x = int(mark['position']['x'])
                         if mark['type'] == "LEFT_EYE_LEFT_CORNER":
-                            eye_top_x = int(mark['position']['x'])
+                            l_eye_top_x = int(mark['position']['x'])
+                        if mark['type'] == "RIGHT_EYE_TOP_BOUNDARY":
+                            r_eye_top_y = int(mark['position']['y'])
+                        if mark['type'] == "RIGHT_EYE_BOTTOM_BOUNDARY":
+                            r_eye_end_y = int(mark['position']['y'])
+                        if mark['type'] == "RIGHT_EYE_RIGHT_CORNER":
+                            r_eye_end_x = int(mark['position']['x'])
+                        if mark['type'] == "RIGHT_EYE_LEFT_CORNER":
+                            r_eye_top_x = int(mark['position']['x'])
                     img = cv2.rectangle(
                         img, 
-                        (eye_top_x, eye_top_y),
-                        (eye_end_x, eye_end_y),
+                        (l_eye_top_x, l_eye_top_y),
+                        (l_eye_end_x, l_eye_end_y),
+                        (57, 108, 236),
+                        2)
+                    img = cv2.rectangle(
+                        img, 
+                        (r_eye_top_x, r_eye_top_y),
+                        (r_eye_end_x, r_eye_end_y),
                         (57, 108, 236),
                         2)
                     return_mosaic_dict.append({
                         "name": "pupil",
-                        "top_x": eye_top_x,
-                        "top_y": eye_top_y,
-                        "end_x": eye_end_x,
-                        "end_y": eye_end_y
+                        "top_x": l_eye_top_x,
+                        "top_y": l_eye_top_y,
+                        "end_x": l_eye_end_x,
+                        "end_y": l_eye_end_y
+                    })
+                    return_mosaic_dict.append({
+                        "name": "pupil",
+                        "top_x": r_eye_top_x,
+                        "top_y": r_eye_top_y,
+                        "end_x": r_eye_end_x,
+                        "end_y": r_eye_end_y
                     })
 
         if 'textAnnotations' in img_ann:
@@ -227,7 +252,6 @@ def privacy_scan(request):
                     "end_y": end_y
                 })
 
-
         if 'Selfie' in check_label_list:
             # 自撮りの場合
             # 最もサイズが大きい顔は除外
@@ -239,6 +263,8 @@ def privacy_scan(request):
                     big_size = size
                     index = i
             del return_mosaic_dict[index]
+
+        
 
         # 統計データ更新
         db_json['statistics'] = statistics_dict

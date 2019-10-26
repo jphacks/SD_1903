@@ -40,7 +40,15 @@ class MainActivity : AppCompatActivity() {
         // 通知＆定期ジョブを設定
         createChannel(this)
 
+        val fetchJob = JobInfo.Builder(1, ComponentName(this, ScanJobService::class.java))
+//            .setMinimumLatency(5000)
+//            .setOverrideDeadline(10000)
+            .setPeriodic(0)
+            .setPersisted(true)
+            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+            .build()
 
+        getSystemService(JobScheduler::class.java).schedule(fetchJob)
     }
 
     override fun onResume() {
@@ -66,16 +74,6 @@ class MainActivity : AppCompatActivity() {
 
             }
         }
-
-        val fetchJob = JobInfo.Builder(1, ComponentName(this, ScanJobService::class.java))
-            .setMinimumLatency(5000)
-            .setOverrideDeadline(10000)
-//            .setPeriodic(0)
-            .setPersisted(true)
-            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-            .build()
-
-        getSystemService(JobScheduler::class.java).schedule(fetchJob)
     }
 
     // パーミッション取得結果

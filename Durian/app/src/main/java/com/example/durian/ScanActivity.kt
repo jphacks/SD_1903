@@ -48,18 +48,32 @@ class ScanActivity : AppCompatActivity() {
         addMosaicButton = findViewById(R.id.addMosaicButton)
         addMosaicButton.isEnabled = false
 
-        val toStr = intent.getStringExtra("to")
-        if (toStr == "CAMERA") {
-            Intent(MediaStore.ACTION_IMAGE_CAPTURE).resolveActivity(packageManager)?.let {
-                takePicture()
-            } ?: turnBack("CAMERA")
-        } else if (toStr == "PICTURES") {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-            intent.addCategory(Intent.CATEGORY_OPENABLE)
-            intent.type = "image/*"
-            startActivityForResult(intent, SELECTION_INTENT)
-        }
+        val toStr = intent.getStringExtra("to") ?: ""
+        when (toStr) {
+            "CAMERA" -> {
+                Intent(MediaStore.ACTION_IMAGE_CAPTURE).resolveActivity(packageManager)?.let {
+                    takePicture()
+                } ?: turnBack("CAMERA")
+            }
+            "PICTURES" -> {
+                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+                intent.addCategory(Intent.CATEGORY_OPENABLE)
+                intent.type = "image/*"
+                startActivityForResult(intent, SELECTION_INTENT)
+            }
+            "NOTIFICATION" -> {
+                val pref = getSharedPreferences("tmpShared", Context.MODE_PRIVATE)
+                val imgStr = pref.getString("notify_img_data", "")
+                if (imgStr != null) {
+                    val imgBytes = Base64.decode(imgStr, Base64.DEFAULT)
+                    val imgByteStream = ByteArrayInputStream(imgBytes)
+                    val img = BitmapFactory.decodeStream(imgByteStream)
+                    detectionView.setImageBitmap(img)
 
+                    visionAnnotation(imgBytes)
+                }
+            }
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
