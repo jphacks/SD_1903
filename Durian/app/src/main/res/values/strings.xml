@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Durian</string>
+    <string name="camera">写真を取ってスキャン</string>
+    <string name="gallery">選択してスキャン</string>
 </resources>
