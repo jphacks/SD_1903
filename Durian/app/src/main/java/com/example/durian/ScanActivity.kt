@@ -28,6 +28,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.widget.Space
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.Legend
@@ -214,6 +215,7 @@ class ScanActivity : AppCompatActivity() {
     private fun visionAnnotation(imgBytes: ByteArray) {
         progressBar.isVisible = true
 
+        // anime start()
         val handler = Handler()
 
         val url = URL("https://us-central1-crasproject.cloudfunctions.net/privacy_scan")
@@ -222,6 +224,15 @@ class ScanActivity : AppCompatActivity() {
 
         Thread {
             val resultJSONObj = cloudFunRequest(url, postJson.toString())
+
+            // flag用のmap 右側にJSONの値
+            val checkIdItem = listOf<ImageView>(faceCheck,pupilCheck,handCheck,charCheck,landmarkCheck)
+            val checkMarkJSON = mutableListOf<Boolean>()
+            checkMarkJSON.add(true) //face
+            checkMarkJSON.add(false)  //pupil
+            checkMarkJSON.add(true) //hand
+            checkMarkJSON.add(false) //char
+            checkMarkJSON.add(true)//landmark
 
             if (resultJSONObj != null) {
                 if (resultJSONObj.has("img")) {
@@ -238,6 +249,18 @@ class ScanActivity : AppCompatActivity() {
                 handler.post {
                     enableMosaicButton(resultJSONObj.getJSONArray("mosaic_points").toString())
                     progressBar.isVisible = false
+
+                    for (i in 0 until checkMarkJSON.size){
+                        checkIdItem[i].setImageResource(if (checkMarkJSON[i]){
+                            R.drawable.ok
+                        }else {
+                            R.drawable.ng
+                        })
+                        var icon = checkIdItem[i].drawable
+                        if (icon is AnimatedVectorDrawable){
+                            icon.start()
+                        }
+                    }
                 }
                 Log.d("[LOG] - DEBUG", resultJSONObj.getJSONObject("advice").toString())
                 Log.d("[LOG] - DEBUG", resultJSONObj.getJSONObject("statistics").toString())
@@ -251,10 +274,10 @@ class ScanActivity : AppCompatActivity() {
     private fun BarData(): BarData {
         val values = mutableListOf<BarEntry>()
         val faceval = 100f
-        val pupilval = 100f
-        val handval = 100f
-        val charval = 100f
-        val landval = 100f
+        val pupilval = 120f
+        val handval = 10f
+        val charval = 110f
+        val landval = 130f
         values.add(BarEntry(1f,faceval))
         values.add(BarEntry(2f,pupilval))
         values.add(BarEntry(3f,handval))
@@ -292,9 +315,9 @@ class ScanActivity : AppCompatActivity() {
                 formSize = 10f
                 typeface = mTypeface
                 textColor = Color.BLACK
-                verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-                horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
-                orientation = Legend.LegendOrientation.HORIZONTAL
+//                verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+//                horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
+//                orientation = Legend.LegendOrientation.HORIZONTAL
                 setDrawInside(false)
             }
 
