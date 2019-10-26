@@ -113,8 +113,6 @@ class ScanActivity : AppCompatActivity() {
                 }
             }
         }
-
-        enableMosaicButton()
     }
 
     private fun takePicture() {
@@ -145,10 +143,11 @@ class ScanActivity : AppCompatActivity() {
     }
 
 
-    private fun enableMosaicButton() {
+    private fun enableMosaicButton(putStr: String) {
         addMosaicButton.isEnabled = true
         addMosaicButton.setOnClickListener {
             val intent = Intent(this, MosaicActivity::class.java)
+            intent.putExtra("mosaic_points", putStr)
             startActivityForResult(intent, ADD_MOSAIC_INTENT)
         }
     }
@@ -164,6 +163,7 @@ class ScanActivity : AppCompatActivity() {
 
     private fun visionAnnotation(imgBytes: ByteArray) {
         val handler = Handler()
+
         val url = URL("https://us-central1-crasproject.cloudfunctions.net/privacy_scan")
         val postJson = JSONObject()
         postJson.put("img", Base64.encodeToString(imgBytes, Base64.DEFAULT))
@@ -183,11 +183,11 @@ class ScanActivity : AppCompatActivity() {
                 }
                 // TODO key is "statistics" etc...
 
-                Log.d("[LOG] - DEBUG", resultJSONObj.toString())
-            }
+                handler.post {
+                    enableMosaicButton(resultJSONObj.getJSONArray("mosaic_points").toString())
+                }
 
-            handler.post {
-                enableMosaicButton()
+                Log.d("[LOG] - DEBUG", resultJSONObj.toString())
             }
         }.start()
     }
