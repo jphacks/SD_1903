@@ -2,7 +2,7 @@ package com.example.durian
 
 import android.graphics.Bitmap
 
-fun resizeBitmap(img: Bitmap, scale: Int = 1000): Bitmap {
+fun resizeBitmap(img: Bitmap, scale: Int = 800): Bitmap {
     val widthF = img.width.toFloat()
     val heightF = img.height.toFloat()
     when (widthF > heightF) {
