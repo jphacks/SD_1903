@@ -80,7 +80,7 @@ def privacy_scan(request):
                 },
                 {
                     'type': 'TEXT_DETECTION',
-                    'maxResults': 10
+                    'maxResults': 30
                 },
                 {
                     'type': 'FACE_DETECTION'
@@ -116,7 +116,7 @@ def privacy_scan(request):
             'landmark': False
         }
         # アドバイス連想配列
-        advice_dict = {}
+        advice_list = []
 
         res_json = response.json()["responses"]
         img_ann = res_json[0]
@@ -143,11 +143,13 @@ def privacy_scan(request):
                 if desc == "Finger":
                     check_label_list.append("Finger")
                     detected_tag_dict['finger'] = True
-                if desc == "Screen" or desc == "Laptop":
+                    advice_list.append(["figner", "指の指紋が読み取られ、悪用されるかもしれません"])
+                if desc == "Screen" or desc == "Display":
                     check_label_list.append("Screen")
                     # 画面
                     # TODO: 文字警告
-                    print()
+                    advice_list.append(["display", "画面に映る情報が個人の特定に繋がる可能性があります"])
+                    
 
 
         if 'faceAnnotations' in img_ann:
@@ -243,7 +245,7 @@ def privacy_scan(request):
                         detected_tag_dict['pupil'] = True
 
         if 'textAnnotations' in img_ann:
-            for text_info in img_ann['textAnnotations'][:10]:
+            for text_info in img_ann['textAnnotations']:
                 if 'locale' in text_info:
                     desc = text_info['description']
                     desc = desc.replace(' ', '')
@@ -253,24 +255,35 @@ def privacy_scan(request):
                         'app_id': goo_api_key,
                         'sentence': desc
                     }
+                    # goo apiを用いてテキスト解析
                     response = requests.post(GOO_TEXT_ANNOTATE_URL, data=json.dumps(data).encode(), headers={'Content-Type': 'application/json'})
                     result_texts = response.json()['ne_list']
-                    advice_dict["text"] = []
+                    advice_text_flags = []
                     for char_info in result_texts:
                         if "ART" in char_info:
                             # TODO 人工物検出
-                            advice_dict["text"].append({"ART": char_info[0]})
+                            advice_text_flags.append("ART")
                         elif "ORG" in char_info:
                             # TODO 組織名検出
-                            advice_dict["text"].append({"ORG": char_info[0]})
+                            advice_text_flags.append("ORG")
                         elif "LOC" in char_info:
                             # TODO 場所情報
-                            advice_dict["text"].append({"LOC":char_info[0]})
+                            advice_text_flags.append("LOC")
                             detected_tag_dict['text'] = True
                         elif "PSN" in char_info:
                             # TODO 人物名検出
-                            advice_dict["text"].append({"PSN":char_info[0]})
+                            advice_text_flags.append("PSN")
                             detected_tag_dict['text'] = True
+                    advice_text = ""
+                    if "ART" in advice_text_flags:
+                        advice_text += "人工物,"
+                    if "ORG" in advice_text_flags:
+                        advice_text += "組織名,"
+                    if "LOC" in advice_text_flags:
+                        advice_text += "場所,"
+                    if "PSN" in advice_text_flags:
+                        advice_text += "人,"
+                    advice_list.append(["text", advice_text])
                 else:
                     text_point = text_info['boundingPoly']['vertices']
                     top_x = text_point[0]['x'] if 'x' in text_point[0] else 0
@@ -290,9 +303,10 @@ def privacy_scan(request):
         if 'landmarkAnnotations' in img_ann:
             detected_tag_dict['landmark'] = True
             landmarks_ann = img_ann['landmarkAnnotations']
-            for landmark in landmarks_ann:
+            for landmark in landmarks_ann[:1]:
                 desc = landmark['description']
                 location = (landmark['locations'][0]['latLng']['latitude'], landmark['locations'][0]['latLng']['longitude'])
+            advice_list.append(["landmark", "写真の場所は緯度%f 経度%f" % (location[0], location[1])])
 
         # モザイク処理
         for mosaic_point in return_mosaic_list:
@@ -338,6 +352,13 @@ def privacy_scan(request):
         db_json['statistics'] = statistics_dict
         db_blob.upload_from_string(json.dumps(db_json))
 
+        # アドバイス構文最終構築
+        if detected_tag_dict['face']:
+            advice_list.append(["face","背景に人の顔があります。加工しましょう"])
+        if detected_tag_dict['pupil']:
+            advice_list.append(['pupil', '瞳に映る景色から住所を特定されるかもしれません'])
+
+
         # レスポンスデータ作成
         result, img_bytes = cv2.imencode('.jpg', img)
         json_data = {
@@ -345,7 +366,7 @@ def privacy_scan(request):
             'statistics': statistics_dict,
             'checks': detected_tag_dict,
             'mosaic_points': return_mosaic_list,
-            'advice': advice_dict
+            'advice': advice_list
         }
 
         # レスポンス
