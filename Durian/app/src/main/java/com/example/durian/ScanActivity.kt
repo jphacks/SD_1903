@@ -348,7 +348,7 @@ class ScanActivity : AppCompatActivity() {
             xAxis.apply {
                 granularity = 1f
                 isGranularityEnabled = true
-                setDrawGridLines(true)
+                setDrawGridLines(false)
                 setDrawLabels(true)
                 textSize = 12f
 //                axisLineWidth = 1f
