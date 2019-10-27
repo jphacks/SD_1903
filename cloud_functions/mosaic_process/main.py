@@ -17,6 +17,15 @@ def mosaic(img, scale=0.1):
     mosaiced = cv2.resize(mosaiced, dsize=(w, h), interpolation=cv2.INTER_NEAREST)
     return mosaiced
 
+def mosaic_dsize(img, scale=0.1):
+    # 画像を scale (0 < scale <= 1) 倍にリサイズする。
+    h, w = img.shape[:2]
+    mosaiced = cv2.resize(img, dsize=(2 if int(w*scale) < 1 else int(w*scale), 2 if int(h*scale) < 1 else int(h*scale)), interpolation=cv2.INTER_NEAREST)
+    # 元の大きさにリサイズする。
+    
+    mosaiced = cv2.resize(mosaiced, dsize=(w, h), interpolation=cv2.INTER_NEAREST)
+    return mosaiced
+
 
 def mosaic_process(request):
     """Responds to any HTTP request.
@@ -53,16 +62,17 @@ def mosaic_process(request):
             # モザイク処理
             if name == 'face':
                 if end_y - top_y > 100 and end_x - top_x > 100:
-                    img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.05)
+                    img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.1)
                 else:
                     img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.1)
             if name == 'pupil':
-                img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.4)
+                img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.5)
             if name == 'text':
-                if end_y - top_y > 50 and end_x - top_x > 50:
-                    img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.05)
+                if end_y - top_y <= 50 and end_x - top_x <= 50:
+                    img[top_y: end_y, top_x: end_x] = mosaic_dsize(img[top_y: end_y, top_x: end_x], scale=0.2)
                 else:
-                    img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.1)
+                    img[top_y: end_y, top_x: end_x] = mosaic_dsize(img[top_y: end_y, top_x: end_x], scale=0.1)
+
         
         result, img_bytes = cv2.imencode('.jpg', img)
 

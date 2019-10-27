@@ -263,9 +263,11 @@ def privacy_scan(request):
                         if "ART" in char_info:
                             # TODO 人工物検出
                             advice_text_flags.append("ART")
+                            detected_tag_dict['text'] = True
                         elif "ORG" in char_info:
                             # TODO 組織名検出
                             advice_text_flags.append("ORG")
+                            detected_tag_dict['text'] = True
                         elif "LOC" in char_info:
                             # TODO 場所情報
                             advice_text_flags.append("LOC")
