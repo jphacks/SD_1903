@@ -1,4 +1,4 @@
-# Durian ～<span style="color: red; ">D</span>etect your Information and Negligence～
+# Durian　**～Detect your Information and Negligence～**
 
 ### ※下の画像をクリックすると、デモ動画を見ることができます。
 [![Product Name](image-samune.png)](https://youtu.be/2uta3dQ5xq0)
