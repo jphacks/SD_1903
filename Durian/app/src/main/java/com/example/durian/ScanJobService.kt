@@ -86,7 +86,18 @@ class ScanJobService(): JobService() {
                                     val imgByte = Base64.decode(imgStr, Base64.DEFAULT)
                                     val imgByteStream = ByteArrayInputStream(imgByte)
 
-                                    notifyWarning(this, detectImgName, bitmap)
+                                    if (resultJson.has("checks")) {
+                                        val checksObj = resultJson.getJSONObject("checks")
+                                        if (checksObj.getBoolean("face") ||
+                                            checksObj.getBoolean("pupil") ||
+                                            checksObj.getBoolean("finger") ||
+                                            checksObj.getBoolean("text") ||
+                                            checksObj.getBoolean("landmark")) {
+                                            handler.post {
+                                                notifyWarning(this, detectImgName, bitmap)
+                                            }
+                                        }
+                                    }
                                 } else {
                                     Log.d("[Log] onActivityResult", "img key is not find.")
                                 }
