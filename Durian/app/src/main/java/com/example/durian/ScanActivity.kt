@@ -15,10 +15,6 @@ import android.os.Handler
 import android.util.Base64
 import android.provider.MediaStore
 import android.util.Log
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.Toast
 import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
 import org.json.JSONObject
@@ -29,7 +25,7 @@ import java.util.*
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.AnimatedVectorDrawable
-import android.widget.Space
+import android.widget.*
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.LegendEntry
@@ -49,6 +45,7 @@ class ScanActivity : AppCompatActivity() {
     private lateinit var detectionView: ImageView
     private lateinit var addMosaicButton: Button
     private lateinit var progressBar: ProgressBar
+    private lateinit var adviceListView: ListView
 
     private val CAMERA_INTENT = 1
     private val SELECTION_INTENT = 2
@@ -68,6 +65,7 @@ class ScanActivity : AppCompatActivity() {
         addMosaicButton.isEnabled = false
         progressBar = this.findViewById(R.id.scanProgressBar)
         progressBar.isVisible = false
+        adviceListView = findViewById(R.id.adviceListView)
 
         val toStr = intent.getStringExtra("to") ?: ""
         when (toStr) {
@@ -259,7 +257,12 @@ class ScanActivity : AppCompatActivity() {
                     checkMarkJSON.add(!checksObj.getBoolean("landmark"))//landmark
                 }
 
+
                 handler.post {
+                    if (resultJSONObj.has("advice")) {
+                        adviceListView.adapter = AdviceAdapter(this, resultJSONObj.getJSONArray("advice"))
+                    }
+
                     enableMosaicButton(resultJSONObj.getJSONArray("mosaic_points").toString())
                     progressBar.isVisible = false
 
@@ -275,7 +278,7 @@ class ScanActivity : AppCompatActivity() {
                         }
                     }
                 }
-                Log.d("[LOG] - DEBUG", resultJSONObj.getJSONObject("advice").toString())
+                Log.d("[LOG] - DEBUG", resultJSONObj.getJSONArray("advice").toString())
                 Log.d("[LOG] - DEBUG", resultJSONObj.getJSONObject("statistics").toString())
             }
         }.start()

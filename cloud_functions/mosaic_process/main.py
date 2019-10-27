@@ -52,9 +52,17 @@ def mosaic_process(request):
 
             # モザイク処理
             if name == 'face':
-                img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.02)
+                if end_y - top_y > 50 and end_x - top_x > 50:
+                    img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.02)
+                else:
+                    img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.1)
             if name == 'pupil':
                 img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.4)
+            if name == 'text':
+                if end_y - top_y > 50 and end_x - top_x > 50:
+                    img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.02)
+                else:
+                    img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.1)
         
         result, img_bytes = cv2.imencode('.jpg', img)
 
