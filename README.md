@@ -47,6 +47,7 @@ Durianは、写真に含まれる情報をAIによって検出し、その結果
 なおこの付随機能は、端末の設定からオフにすることが可能である。
 
 ![Tech image](notification_3.PNG)
+<img src="notification_3.PNG" width="1000">
 
 ### ◆Durianの特徴・メリット
 
