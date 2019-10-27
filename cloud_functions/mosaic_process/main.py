@@ -52,15 +52,15 @@ def mosaic_process(request):
 
             # モザイク処理
             if name == 'face':
-                if end_y - top_y > 50 and end_x - top_x > 50:
-                    img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.02)
+                if end_y - top_y > 100 and end_x - top_x > 100:
+                    img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.05)
                 else:
                     img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.1)
             if name == 'pupil':
                 img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.4)
             if name == 'text':
                 if end_y - top_y > 50 and end_x - top_x > 50:
-                    img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.02)
+                    img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.05)
                 else:
                     img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.1)
         

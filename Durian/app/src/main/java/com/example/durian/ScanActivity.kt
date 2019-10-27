@@ -36,6 +36,7 @@ import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.LargeValueFormatter
+import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.renderer.CandleStickChartRenderer
 import kotlinx.android.synthetic.main.activity_scan.*
 
@@ -247,6 +248,7 @@ class ScanActivity : AppCompatActivity() {
                         statisticsObj.getInt("text").toFloat(),
                         statisticsObj.getInt("landmark").toFloat())
                 }
+                setupBarchart()
 
                 if (resultJSONObj.has("checks")) {
                     val checksObj = resultJSONObj.getJSONObject("checks")
@@ -277,13 +279,13 @@ class ScanActivity : AppCompatActivity() {
                             icon.start()
                         }
                     }
+
+
                 }
                 Log.d("[LOG] - DEBUG", resultJSONObj.getJSONArray("advice").toString())
                 Log.d("[LOG] - DEBUG", resultJSONObj.getJSONObject("statistics").toString())
             }
         }.start()
-
-        setupBarchart()
     }
 
     private fun BarData(face: Float, pupil: Float, hand: Float, char: Float, landmark: Float): BarData {
@@ -299,71 +301,89 @@ class ScanActivity : AppCompatActivity() {
         values.add(BarEntry(4f,charval))
         values.add(BarEntry(5f,landval))
 
-        val yVals = BarDataSet(values, "ユーザー全体の統計").apply {
-            axisDependency = YAxis.AxisDependency.LEFT
-            color = Color.GREEN
+        val yVals = BarDataSet(values,"").apply {
+            setColors(Color.GREEN)
+            axisDependency = YAxis.AxisDependency.RIGHT
             setDrawIcons(false)
-            setDrawValues(false)
+            setDrawValues(true)
+            valueTextSize = 12f
         }
 
         val data = BarData(yVals)
+        data.barWidth = 0.60f
         return data
     }
 
     private fun setupBarchart(){
-
-        var xAxisValue = ArrayList<String>()
+        val xAxisValue = ArrayList<String>()
         xAxisValue.add("face")
         xAxisValue.add("pupil")
-        xAxisValue.add("hand")
+        xAxisValue.add("finger")
         xAxisValue.add("char")
         xAxisValue.add("landmark")
 
         chart.apply {
             description.isEnabled = false
+            description.textSize = 0f
+//            LargeValueFormatter()
+            setFitBars(true)
+            data.isHighlightEnabled = false
+            invalidate()
+
             isScaleXEnabled = false
             setPinchZoom(false)
             setDrawGridBackground(false)
 
 
             legend.apply{
-                formSize = 10f
                 typeface = mTypeface
                 textColor = Color.BLACK
-//                verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-//                horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
-//                orientation = Legend.LegendOrientation.HORIZONTAL
+                verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+                horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
+                orientation = Legend.LegendOrientation.HORIZONTAL
                 setDrawInside(false)
+//                yOffset = 2f
+//                xOffset = 2f
+                yEntrySpace = 0f
+                textSize = 5f
             }
 
             xAxis.apply {
                 granularity = 1f
                 isGranularityEnabled = true
-                setCenterAxisLabels(true)
-                setDrawGridLines(false)
-                setDrawLabels(false)
-                textSize = 9f
+                setDrawGridLines(true)
+                setDrawLabels(true)
+                textSize = 12f
+//                axisLineWidth = 1f
+
 
                 position = XAxis.XAxisPosition.BOTTOM
                 valueFormatter = IndexAxisValueFormatter(xAxisValue)
 
-//                setLabelCount(5)
-                mAxisMaximum = 12f
+//                mAxisMinimum = 0f
+//                mAxisMaximum = 5f
+//
+//                labelCount = 5
                 setCenterAxisLabels(true)
                 setAvoidFirstLastClipping(true)
-                spaceMin = 4f
-                spaceMax = 4f
-
-                setVisibleXRangeMaximum(12f)
-                setVisibleXRangeMinimum(12f)
-                isDragEnabled = false
+//                spaceMin  = 2f
+//                spaceMax = 2f
             }
 
             axisRight.isEnabled = false
-            setScaleEnabled(true)
+            setScaleEnabled(false)
+
+//            setVisibleXRangeMaximum(5f)
+//            setVisibleXRangeMinimum(5f)
+
             axisLeft.apply {
-                valueFormatter = LargeValueFormatter()
-                setDrawGridLines(false)
+                valueFormatter  = LargeValueFormatter()
+                setDrawGridLines(true)
+                spaceTop = 1f
+//                spaceBottom = 0f
+//                axisMinimum = 0f
+//                data = barData
+//                setVisibleXRange(0f,6f)
             }
         }
     }

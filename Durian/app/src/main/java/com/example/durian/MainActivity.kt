@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
         val fetchJob = JobInfo.Builder(1, ComponentName(this, ScanJobService::class.java))
             .setMinimumLatency(5000)
             .setOverrideDeadline(10000)
-//            .setPeriodic(0)
+//            .setPeriodic(10000)
             .setPersisted(true)
             .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
             .build()
