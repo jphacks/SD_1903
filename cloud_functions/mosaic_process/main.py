@@ -20,7 +20,7 @@ def mosaic(img, scale=0.1):
 def mosaic_dsize(img, scale=0.1):
     # 画像を scale (0 < scale <= 1) 倍にリサイズする。
     h, w = img.shape[:2]
-    mosaiced = cv2.resize(img, dsize=(int(w*scale), int(h*scale)), interpolation=cv2.INTER_NEAREST)
+    mosaiced = cv2.resize(img, dsize=(2 if int(w*scale) < 1 else int(w*scale), 2 if int(h*scale) < 1 else int(h*scale)), interpolation=cv2.INTER_NEAREST)
     # 元の大きさにリサイズする。
     
     mosaiced = cv2.resize(mosaiced, dsize=(w, h), interpolation=cv2.INTER_NEAREST)
