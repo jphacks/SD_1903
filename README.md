@@ -1,6 +1,6 @@
 # Durian
 
-[![Product Name](image.png)](https://youtu.be/2uta3dQ5xq0)
+[![Product Name](image-samune.png)](https://youtu.be/2uta3dQ5xq0)
 画像をクリックするとyoutubeの動画にとびます
 
 ## 製品概要
@@ -77,7 +77,9 @@ AIによって写真に含まれる情報が検出され、さらにそれらの
 
 
 ## 開発内容・開発技術
-![Tech image](system.png)
+### システム図
+サーバサイドの処理は以下の図のようになります。
+![Tech image](system.PNG)
 ### 活用した技術
 #### 使用言語
 * Python3.7
