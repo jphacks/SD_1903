@@ -14,4 +14,6 @@
     <string name="scan_advice_label">ユーザー全体の検出数</string>
     <string name="scan_result_label">Result</string>
     <string name="mosaic_Button">モザイクをかける</string>
+    <string name="tabButton_1_text">モザイク</string>
+    <string name="tabButton_2_text">スタンプ</string>
 </resources>
