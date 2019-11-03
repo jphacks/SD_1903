@@ -29,6 +29,22 @@
         app:layout_constraintStart_toStartOf="@+id/mosaicView"
         app:layout_constraintTop_toTopOf="@+id/mosaicView" />
 
+    <Button
+        android:id="@+id/tabButton_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/tabButton_1_text"
+        app:layout_constraintBottom_toBottomOf="@+id/mosaicView"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/tabButton_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/tabButton_2_text"
+        app:layout_constraintBottom_toBottomOf="@+id/mosaicView"
+        app:layout_constraintStart_toEndOf="@+id/tabButton_1" />
+
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="0dp"

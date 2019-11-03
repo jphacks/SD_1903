@@ -27,9 +27,15 @@ class MosaicActivity : AppCompatActivity() {
     private lateinit var mosaicView: ImageView
     private lateinit var saveButton: Button
     private lateinit var backButton: Button
+    private lateinit var tabButton1: Button
+    private lateinit var tabButton2: Button
     private lateinit var progressBar: ProgressBar
 
     private val REQUEST_SAVE_IMAGE = 1
+
+    private var planeImageBitmap: Bitmap? = null
+    private var mosaicImageBitmap: Bitmap? = null
+    private var stampImageBitmap: Bitmap? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,9 +44,17 @@ class MosaicActivity : AppCompatActivity() {
         mosaicView = findViewById(R.id.mosaicView)
         saveButton = findViewById(R.id.saveButton)
         backButton = findViewById(R.id.backButton)
+        tabButton1 = findViewById(R.id.tabButton_1)
+        tabButton2 = findViewById(R.id.tabButton_2)
         progressBar = findViewById(R.id.mosaicProgressBar)
+
         progressBar.isVisible = false
 
+        // TabButtonの初期設定
+        tabButton1.isEnabled = false
+        tabButton2.isEnabled = false
+
+        // SharedPreferencesから遷移前のデータ取得
         val pref = getSharedPreferences("tmpShared", Context.MODE_PRIVATE)
         val imgStr = pref.getString("tmp_img", "")
         if (imgStr != "") {
@@ -48,6 +62,7 @@ class MosaicActivity : AppCompatActivity() {
             val bitmap = BitmapFactory.decodeByteArray(imgBytes, 0, imgBytes.size)
             mosaicView.setImageBitmap(bitmap)
             pref.edit().remove("tmp_img")
+            planeImageBitmap = bitmap      // 元の画像データ -> グローバル
 
             val mosaicPoints = intent.getStringExtra("mosaic_points")
             mosaicProcess(imgBytes, mosaicPoints)
@@ -75,16 +90,41 @@ class MosaicActivity : AppCompatActivity() {
         }
 
         backButton.setOnClickListener {
+            finish()
+        }
 
+        tabButton1.setOnClickListener {
+            // TODO: ImageView変更。
+            if (mosaicImageBitmap != null) {
+                mosaicView.setImageBitmap(mosaicImageBitmap)
+            } else {
+                Log.d("[LOG] - ERROR", "mosaicImageBitmap is not found.")
+            }
+            // tabButtonのisEnableの変更
+            tabButton2.isEnabled = true
+            tabButton1.isEnabled = false
+            // 背景変更
+            setBGTabButton1(TOGGLE.ON)
+            setBGTabButton2(TOGGLE.OFF)
+        }
+        tabButton2.setOnClickListener {
+            // TODO: ImageView変更。
+            if (stampImageBitmap != null) {
+                mosaicView.setImageBitmap(stampImageBitmap)
+            } else {
+                Log.d("[LOG] - ERROR", "stampImageBitmap is not found.")
+            }
+            // tabButtonのisEnableの変更
+            tabButton1.isEnabled = true
+            tabButton2.isEnabled = false
+            // 背景変更
+            setBGTabButton1(TOGGLE.OFF)
+            setBGTabButton2(TOGGLE.ON)
         }
     }
 
     override fun onResume() {
         super.onResume()
-
-        backButton.setOnClickListener {
-            finish()
-        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -137,13 +177,58 @@ class MosaicActivity : AppCompatActivity() {
                     val imgByte = Base64.decode(imgStr, Base64.DEFAULT)
                     val imgByteStream = ByteArrayInputStream(imgByte)
                     handler.post {
-                        mosaicView.setImageBitmap(BitmapFactory.decodeStream(imgByteStream))
+                        val getImageBitmap = BitmapFactory.decodeStream(imgByteStream)
+                        mosaicView.setImageBitmap(getImageBitmap)
                         progressBar.isVisible = false
+                        mosaicImageBitmap = getImageBitmap   // モザイク画像データ -> グローバル
+
+                        // TabButtonの初期設定
+                        tabButton1.isEnabled = false
+                        setBGTabButton1(TOGGLE.ON)
+                        tabButton2.isEnabled = true
+                        setBGTabButton1(TOGGLE.OFF)
                     }
                 } else {
                     Log.d("[Log] onActivityResult", "img key is not find.")
                 }
             }
         }.start()
+    }
+
+
+    // タブボタン１の背景変更メソッド
+    private fun setBGTabButton1(toggle: TOGGLE) {
+        // ここにTabButton1の背景変更処理
+        when (toggle) {
+            TOGGLE.ON -> {
+                // TODO: ONのとき
+                Log.d("[LOG] - DEBUG", "TabButton1 is ON")
+            }
+            TOGGLE.OFF -> {
+                // TODO: OFFのとき
+                Log.d("[LOG] - DEBUG", "TabButton1 is OFF")
+            }
+        }
+
+    }
+
+    // タブボタン２の背景変更メソッド
+    private fun setBGTabButton2(toggle: TOGGLE) {
+        // ここにTabButton1の背景変更処理
+        when (toggle) {
+            TOGGLE.ON -> {
+                // TODO: ONのとき (to 松崎)
+                Log.d("[LOG] - DEBUG", "TabButton2 is ON")
+            }
+            TOGGLE.OFF -> {
+                // TODO: OFFのとき (to 松崎)
+                Log.d("[LOG] - DEBUG", "TabButton2 is OFF")
+            }
+        }
+    }
+
+
+    enum class TOGGLE {
+        ON, OFF
     }
 }
