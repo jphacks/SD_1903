@@ -173,14 +173,22 @@ class MosaicActivity : AppCompatActivity() {
             val resultJson: JSONObject? = cloudFunRequest(url, postJson.toString())
             if (resultJson != null) {
                 if (resultJson.has("img")) {
+                    // モザイク画像取得取得
                     val imgStr = resultJson.getString("img")
                     val imgByte = Base64.decode(imgStr, Base64.DEFAULT)
                     val imgByteStream = ByteArrayInputStream(imgByte)
+                    // スタンプ画像取得
+                    val stampedImgStr = resultJson.getString("stamp_img")
+                    val stampedImgByte = Base64.decode(stampedImgStr, Base64.DEFAULT)
+                    val stampedImgByteStream = ByteArrayInputStream(stampedImgByte)
                     handler.post {
                         val getImageBitmap = BitmapFactory.decodeStream(imgByteStream)
+                        mosaicImageBitmap = getImageBitmap   // モザイク画像データ -> グローバル
+                        val getStampedImageBitmap = BitmapFactory.decodeStream(stampedImgByteStream)
+                        stampImageBitmap = getStampedImageBitmap    // スタンプ画像データ -> グローバル
+
                         mosaicView.setImageBitmap(getImageBitmap)
                         progressBar.isVisible = false
-                        mosaicImageBitmap = getImageBitmap   // モザイク画像データ -> グローバル
 
                         // TabButtonの初期設定
                         tabButton1.isEnabled = false

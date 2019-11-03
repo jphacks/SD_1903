@@ -1,4 +1,5 @@
 from base64 import b64encode, b64decode
+import os
 import io
 import json
 import requests
@@ -31,9 +32,10 @@ def mosaic_dsize(img, scale=0.1):
     return mosaiced
 
 # スタンプ処理
-def stamp(img):
+def stamp_replace(img, stamp):
     h, w = img.shape[:2]
-
+    stamp = cv2.resize(stamp, dsize=(w, h), interpolation=cv2.INTER_NEAREST)
+    return stamp
 
 
 def mosaic_process(request):
@@ -48,9 +50,13 @@ def mosaic_process(request):
     # Storageから統計データを取得
     client = storage.Client()
     bucket = client.get_bucket('cras_storage')
-    jphacks_logo = bucket.get_blob('jphacks_logo.png')
-    stamp = jphacks_logo.download_to_file()
-
+    jphacks_logo_blob = bucket.get_blob('jphacks_logo.png')
+    # img_binarystream = io.BytesIO(jphacks_logo_blob.download_as_string())
+    # img_pil = Image.open(img_binarystream)
+    # img_numpy = np.asarray(img_pil)
+    # stamp = cv2.cvtColor(img_numpy, cv2.COLOR_RGBA2BGR)
+    stamped_nparr = np.frombuffer(jphacks_logo_blob.download_as_string(), dtype=np.uint8)
+    stamp = cv2.imdecode(stamped_nparr, cv2.IMREAD_ANYCOLOR)
 
     request_json = request.get_json()
     if request.args and 'message' in request.args:
@@ -65,6 +71,7 @@ def mosaic_process(request):
         buf = b64decode(ctxt)
         nparr = np.frombuffer(buf, dtype=np.uint8)
         img = cv2.imdecode(nparr, cv2.IMREAD_ANYCOLOR)
+        
         stamped_img = img.copy()
 
         # モザイク座標を取得
@@ -82,20 +89,28 @@ def mosaic_process(request):
                     img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.1)
                 else:
                     img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.1)
-                stamped_img[top_y: end_y, top_x: end_x] = stamp
+
+                stamped_img[top_y: end_y, top_x: end_x] = stamp_replace(stamped_img[top_y: end_y, top_x: end_x], stamp)
+
             if name == 'pupil':
                 img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.5)
+                stamped_img[top_y: end_y, top_x: end_x] = mosaic(stamped_img[top_y: end_y, top_x: end_x], scale=0.5)
+
             if name == 'text':
                 if end_y - top_y <= 50 and end_x - top_x <= 50:
                     img[top_y: end_y, top_x: end_x] = mosaic_dsize(img[top_y: end_y, top_x: end_x], scale=0.2)
+                    stamped_img[top_y: end_y, top_x: end_x] = mosaic_dsize(stamped_img[top_y: end_y, top_x: end_x], scale=0.2)
                 else:
                     img[top_y: end_y, top_x: end_x] = mosaic_dsize(img[top_y: end_y, top_x: end_x], scale=0.1)
+                    stamped_img[top_y: end_y, top_x: end_x] = mosaic_dsize(stamped_img[top_y: end_y, top_x: end_x], scale=0.1)
 
-        
+        # ndarrayをエンコード
         result, img_bytes = cv2.imencode('.jpg', img)
+        stamp_result, stamp_img_bytes = cv2.imencode('.jpg', stamped_img)
 
         json_data = {
-            'img': b64encode(img_bytes).decode()
+            'img': b64encode(img_bytes).decode(),
+            'stamp_img': b64encode(stamp_img_bytes).decode()
         }
 
         res = helpers.make_response(json.dumps(json_data).encode(), 200)
