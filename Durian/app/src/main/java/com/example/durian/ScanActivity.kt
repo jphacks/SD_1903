@@ -26,6 +26,7 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.widget.*
+import androidx.core.view.setPadding
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.LegendEntry
@@ -295,11 +296,11 @@ class ScanActivity : AppCompatActivity() {
         val handval = hand
         val charval = char
         val landval = landmark
-        values.add(BarEntry(1f,faceval))
+        values.add(BarEntry(0f,faceval))
         values.add(BarEntry(2f,pupilval))
-        values.add(BarEntry(3f,handval))
-        values.add(BarEntry(4f,charval))
-        values.add(BarEntry(5f,landval))
+        values.add(BarEntry(4f,handval))
+        values.add(BarEntry(6f,charval))
+        values.add(BarEntry(8f,landval))
 
         val yVals = BarDataSet(values,"").apply {
             setColors(Color.GREEN)
@@ -310,42 +311,46 @@ class ScanActivity : AppCompatActivity() {
         }
 
         val data = BarData(yVals)
-        data.barWidth = 0.60f
+        data.barWidth = 1.2f
         return data
     }
 
     private fun setupBarchart(){
         val xAxisValue = ArrayList<String>()
         xAxisValue.add("face")
+        xAxisValue.add("")
         xAxisValue.add("pupil")
+        xAxisValue.add("")
         xAxisValue.add("finger")
+        xAxisValue.add("")
         xAxisValue.add("char")
+        xAxisValue.add("")
         xAxisValue.add("landmark")
+        xAxisValue.add("")
 
         chart.apply {
             description.isEnabled = false
-            description.textSize = 0f
+//            description.textSize = 0f
 //            LargeValueFormatter()
-            setFitBars(true)
-            data.isHighlightEnabled = false
+//            setFitBars(true)
+//            data.isHighlightEnabled = false
             invalidate()
-
             isScaleXEnabled = false
             setPinchZoom(false)
             setDrawGridBackground(false)
 
-
             legend.apply{
-                typeface = mTypeface
-                textColor = Color.BLACK
-                verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-                horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
-                orientation = Legend.LegendOrientation.HORIZONTAL
-                setDrawInside(false)
-//                yOffset = 2f
-//                xOffset = 2f
-                yEntrySpace = 0f
-                textSize = 5f
+                isEnabled = false
+//                typeface = mTypeface
+//                textColor = Color.BLACK
+//                verticalAlignment = Legend.LegendVerticalAlignment.TOP
+//                horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
+//                orientation = Legend.LegendOrientation.HORIZONTAL
+//                setDrawInside(false)
+////                yOffset = 2f
+////                xOffset = 2f
+//                yEntrySpace = 0f
+//                textSize = 5f
             }
 
             xAxis.apply {
@@ -354,36 +359,32 @@ class ScanActivity : AppCompatActivity() {
                 setDrawGridLines(false)
                 setDrawLabels(true)
                 textSize = 12f
-//                axisLineWidth = 1f
-
-
                 position = XAxis.XAxisPosition.BOTTOM
                 valueFormatter = IndexAxisValueFormatter(xAxisValue)
-
+////                axisLineWidth = 1f
 //                mAxisMinimum = 0f
 //                mAxisMaximum = 5f
-//
-//                labelCount = 5
-                setCenterAxisLabels(true)
-                setAvoidFirstLastClipping(true)
-//                spaceMin  = 2f
-//                spaceMax = 2f
+////                labelCount = 5
+//                setCenterAxisLabels(true)
+//                setAvoidFirstLastClipping(true)
+//                spaceMin  = 5f
+//                spaceMax = 5f
             }
 
             axisRight.isEnabled = false
             setScaleEnabled(false)
 
-//            setVisibleXRangeMaximum(5f)
-//            setVisibleXRangeMinimum(5f)
+//            setVisibleXRangeMaximum(1f)
+//            setVisibleXRangeMinimum(1f)
 
             axisLeft.apply {
                 valueFormatter  = LargeValueFormatter()
                 setDrawGridLines(true)
-                spaceTop = 1f
+//                spaceTop = 1f
 //                spaceBottom = 0f
 //                axisMinimum = 0f
 //                data = barData
-//                setVisibleXRange(0f,6f)
+//                setVisibleXRange(0f,2f)
             }
         }
     }
