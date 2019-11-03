@@ -7,6 +7,9 @@ import cv2
 from PIL import Image
 from flask import escape, helpers
 
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]='./TeamCras-1788b902cdf8.json' 
+from google.cloud import storage
+
 
 # モザイク処理
 def mosaic(img, scale=0.1):
@@ -17,6 +20,7 @@ def mosaic(img, scale=0.1):
     mosaiced = cv2.resize(mosaiced, dsize=(w, h), interpolation=cv2.INTER_NEAREST)
     return mosaiced
 
+# モザイク処理
 def mosaic_dsize(img, scale=0.1):
     # 画像を scale (0 < scale <= 1) 倍にリサイズする。
     h, w = img.shape[:2]
@@ -25,6 +29,11 @@ def mosaic_dsize(img, scale=0.1):
     
     mosaiced = cv2.resize(mosaiced, dsize=(w, h), interpolation=cv2.INTER_NEAREST)
     return mosaiced
+
+# スタンプ処理
+def stamp(img):
+    h, w = img.shape[:2]
+
 
 
 def mosaic_process(request):
@@ -36,6 +45,13 @@ def mosaic_process(request):
         Response object using
         `make_response <http://flask.pocoo.org/docs/1.0/api/#flask.Flask.make_response>`.
     """
+    # Storageから統計データを取得
+    client = storage.Client()
+    bucket = client.get_bucket('cras_storage')
+    jphacks_logo = bucket.get_blob('jphacks_logo.png')
+    stamp = jphacks_logo.download_to_file()
+
+
     request_json = request.get_json()
     if request.args and 'message' in request.args:
         return request.args.get('message')
@@ -49,6 +65,7 @@ def mosaic_process(request):
         buf = b64decode(ctxt)
         nparr = np.frombuffer(buf, dtype=np.uint8)
         img = cv2.imdecode(nparr, cv2.IMREAD_ANYCOLOR)
+        stamped_img = img.copy()
 
         # モザイク座標を取得
         points = request_json['mosaic_points']
@@ -65,6 +82,7 @@ def mosaic_process(request):
                     img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.1)
                 else:
                     img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.1)
+                stamped_img[top_y: end_y, top_x: end_x] = stamp
             if name == 'pupil':
                 img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.5)
             if name == 'text':
