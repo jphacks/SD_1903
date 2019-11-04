@@ -18,6 +18,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var cameraButton: ImageButton
     private lateinit var pictureButton: ImageButton
+    private lateinit var multipleImagesButton: ImageButton
 
     private val REQUEST_PERMISSION_CAMERA = 1
     private val REQUEST_PERMISSION_WRITEFILE = 2
@@ -29,6 +30,7 @@ class MainActivity : AppCompatActivity() {
 
         cameraButton = findViewById(R.id.cameraButton)
         pictureButton = findViewById(R.id.pictureButton)
+        multipleImagesButton = findViewById(R.id.multipleImagesButton)
 
         // カメラ, ファイルのアクセス許可
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
@@ -79,6 +81,12 @@ class MainActivity : AppCompatActivity() {
 
         pictureButton.setOnClickListener {
             val intent = Intent(this, ScanActivity::class.java)
+            intent.putExtra("to", "PICTURES")
+            startActivity(intent)
+        }
+
+        multipleImagesButton.setOnClickListener {
+            val intent = Intent(this, SaveActivity::class.java)
             intent.putExtra("to", "PICTURES")
             startActivity(intent)
         }
