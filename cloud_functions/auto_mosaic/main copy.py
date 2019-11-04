@@ -7,8 +7,6 @@ import requests
 from PIL import Image
 from base64 import b64decode, b64encode
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]='./TeamCras-1788b902cdf8.json' 
-from google.cloud import storage
 
 GOOGLE_IMG_ANNOTATE_URL = 'https://vision.googleapis.com/v1/images:annotate'
 GOO_TEXT_ANNOTATE_URL = 'https://labs.goo.ne.jp/api/entity'
@@ -40,8 +38,6 @@ def textAnalyze(text):
 # モザイク処理
 def mosaic(img, scale=0.1):
     # 画像を scale (0 < scale <= 1) 倍にリサイズする。
-    if (not img.size > 0 or img is None):
-        return img
     mosaiced = cv2.resize(img, dsize=None, fx=scale, fy=scale, interpolation=cv2.INTER_NEAREST)
     # 元の大きさにリサイズする。
     h, w = img.shape[:2]
@@ -50,15 +46,11 @@ def mosaic(img, scale=0.1):
 
 # モザイク処理
 def mosaic_dsize(img, scale=0.1):
-    if (not img.size > 0 or img is None):
-        return img
     # 画像を scale (0 < scale <= 1) 倍にリサイズする。
     h, w = img.shape[:2]
-    # if int(w*scale) < 2 or int(h*scale) < 2:
-    #     return img
-    # else:
-    mosaiced = cv2.resize(img, dsize=(2 if int(w*scale) < 2 else int(w*scale), 2 if int(h*scale) < 2 else int(h*scale)), interpolation=cv2.INTER_NEAREST)
+    mosaiced = cv2.resize(img, dsize=(2 if int(w*scale) < 1 else int(w*scale), 2 if int(h*scale) < 1 else int(h*scale)), interpolation=cv2.INTER_NEAREST)
     # 元の大きさにリサイズする。
+    
     mosaiced = cv2.resize(mosaiced, dsize=(w, h), interpolation=cv2.INTER_NEAREST)
     return mosaiced
 
@@ -92,6 +84,9 @@ def auto_mosaic(request):
         goo_api_key = ''
         with open('goo_api_key.txt', 'r') as txt:
             goo_api_key = txt.read()
+        # StoreageからAPIkeyを取得  
+        api_blob = bucket.get_blob('google_api_key.txt')
+        google_api_key = api_blob.download_as_string().decode('utf-8')
 
         # スキャンする画像を取得 -> ndarrayに変換
         image_requests = []
