@@ -196,6 +196,11 @@ class MosaicActivity : AppCompatActivity() {
                 } else {
                     Log.d("[Log] onActivityResult", "img key is not find.")
                 }
+            } else {
+                handler.post {
+                    Toast.makeText(this, "画像取得に失敗しました", Toast.LENGTH_SHORT).show()
+                    progressBar.isVisible = false
+                }
             }
         }.start()
     }

@@ -285,6 +285,11 @@ class ScanActivity : AppCompatActivity() {
                 }
                 Log.d("[LOG] - DEBUG", resultJSONObj.getJSONArray("advice").toString())
                 Log.d("[LOG] - DEBUG", resultJSONObj.getJSONObject("statistics").toString())
+            } else {
+                handler.post {
+                    Toast.makeText(this, "画像取得に失敗しました", Toast.LENGTH_SHORT).show()
+                    progressBar.isVisible = false
+                }
             }
         }.start()
     }
