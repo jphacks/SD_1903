@@ -69,9 +69,10 @@ class MosaicActivity : AppCompatActivity() {
         } else {
             Log.d("[Log]", "shared pref has not tmp_img key.")
         }
+    }
 
-        this.title = "モザイク"
-
+    override fun onResume() {
+        super.onResume()
 
         saveButton.setOnClickListener {
             if (saveButton.text == "TOPへ") {
@@ -121,10 +122,6 @@ class MosaicActivity : AppCompatActivity() {
             setBGTabButton1(TOGGLE.OFF)
             setBGTabButton2(TOGGLE.ON)
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
