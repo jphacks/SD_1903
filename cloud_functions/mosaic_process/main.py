@@ -14,6 +14,8 @@ from google.cloud import storage
 
 # モザイク処理
 def mosaic(img, scale=0.1):
+    if (not img.size > 0 or img is None):
+        return img
     # 画像を scale (0 < scale <= 1) 倍にリサイズする。
     mosaiced = cv2.resize(img, dsize=None, fx=scale, fy=scale, interpolation=cv2.INTER_NEAREST)
     # 元の大きさにリサイズする。
@@ -23,6 +25,8 @@ def mosaic(img, scale=0.1):
 
 # モザイク処理
 def mosaic_dsize(img, scale=0.1):
+    if (not img.size > 0 or img is None):
+        return img
     # 画像を scale (0 < scale <= 1) 倍にリサイズする。
     h, w = img.shape[:2]
     mosaiced = cv2.resize(img, dsize=(2 if int(w*scale) < 1 else int(w*scale), 2 if int(h*scale) < 1 else int(h*scale)), interpolation=cv2.INTER_NEAREST)
