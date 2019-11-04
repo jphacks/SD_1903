@@ -18,10 +18,10 @@ fun resizeBitmap(img: Bitmap, scale: Int = 800): Bitmap {
 // 画像の中央をトリム
 fun trimCenterBitmap(img: Bitmap): Bitmap {
     if (img.width > img.height) {
-        val tmpImg = Bitmap.createBitmap(img, img.width/4, 0, img.height, img.height)
+        val tmpImg = Bitmap.createBitmap(img, (img.width-img.height)/2, 0, img.height, img.height)
         return tmpImg
     } else {
-        val tmpImg = Bitmap.createBitmap(img, 0, img.height/4, img.width, img.width)
+        val tmpImg = Bitmap.createBitmap(img, 0, (img.height-img.width)/2, img.width, img.width)
         return tmpImg
     }
 }
