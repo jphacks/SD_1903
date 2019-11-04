@@ -1,11 +1,13 @@
 package com.example.durian.SaveActivityComponents
 
+import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.net.Uri
+import android.os.Environment
 import android.os.Handler
 import android.provider.MediaStore
 import android.util.Base64
@@ -23,7 +25,11 @@ import com.example.durian.*
 import org.json.JSONObject
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 import java.net.URL
+import java.text.SimpleDateFormat
+import java.util.*
 
 class SavedImagesAdapter(val context: Context, val uriList: List<Uri>, val viewWidth: Int): RecyclerView.Adapter<SavedImagesAdapter.SavedImagesViewHolder>() {
 
@@ -74,6 +80,27 @@ class SavedImagesAdapter(val context: Context, val uriList: List<Uri>, val viewW
                         }
                     }
                     // TODO：画像保存処理
+                    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.JAPAN).format(
+                        Date()
+                    )
+                    val imageFileName = "Durian" + timeStamp
+                    val storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM + "/Durian")
+                    if (!storageDir.exists()) {
+                        storageDir.mkdir()
+                    }
+                    val file = File.createTempFile(
+                        imageFileName, /* prefix */
+                        ".jpg", /* suffix */
+                        storageDir      /* directory */
+                    )
+                    val imgOutStream = FileOutputStream(file)
+                    getImageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, imgOutStream)
+                    // ギャラリーに登録
+                    val contentValues = ContentValues().apply {
+                        put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+                        put("_data", file.absolutePath)
+                    }
+                    context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
                 } else {
                     handler.post {
                         Toast.makeText(context, "画像取得に失敗しました", Toast.LENGTH_SHORT).show()
