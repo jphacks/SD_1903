@@ -39,7 +39,7 @@ fun cloudFunRequest(url: URL, postStr: String): JSONObject? {
         if (connection.responseCode in 200 .. 299) {
             val reader: BufferedReader = BufferedInputStream(connection.inputStream).bufferedReader()
             val jsonText: String = reader.readLine()
-            Log.d("[LOG] Response read", jsonText)
+//            Log.d("[LOG] Response read", jsonText)
             val resJson = JSONObject(jsonText)
             reader.close()
 

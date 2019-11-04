@@ -3,6 +3,8 @@ package com.example.durian
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 
+
+// リサイズメソッド
 fun resizeBitmap(img: Bitmap, scale: Int = 800): Bitmap {
     val widthF = img.width.toFloat()
     val heightF = img.height.toFloat()
@@ -13,6 +15,7 @@ fun resizeBitmap(img: Bitmap, scale: Int = 800): Bitmap {
 }
 
 
+// 画像の中央をトリム
 fun trimCenterBitmap(img: Bitmap): Bitmap {
     if (img.width > img.height) {
         val tmpImg = Bitmap.createBitmap(img, img.width/4, 0, img.height, img.height)
@@ -21,4 +24,12 @@ fun trimCenterBitmap(img: Bitmap): Bitmap {
         val tmpImg = Bitmap.createBitmap(img, 0, img.height/4, img.width, img.width)
         return tmpImg
     }
+}
+
+
+// 画像から正方形のサムネイル作成
+fun createThumbnail(img: Bitmap, size: Int = img.width): Bitmap {
+    val trimedImg = trimCenterBitmap(img)
+    val resizedImg = resizeBitmap(trimedImg, scale = size)   // プレビュー用サイズ調整
+    return resizedImg
 }

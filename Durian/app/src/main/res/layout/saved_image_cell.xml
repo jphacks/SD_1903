@@ -30,4 +30,18 @@
         app:layout_constraintEnd_toEndOf="@+id/savedImageCellImageView"
         app:layout_constraintStart_toStartOf="@+id/savedImageCellImageView"
         app:layout_constraintTop_toTopOf="@+id/savedImageCellImageView" />
+
+    <ImageView
+        android:id="@+id/savedCheckImageView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintBottom_toBottomOf="@+id/savedImageCellImageView"
+        app:layout_constraintEnd_toEndOf="@+id/savedImageCellImageView"
+        app:layout_constraintStart_toStartOf="@+id/savedImageCellImageView"
+        app:layout_constraintTop_toTopOf="@+id/savedImageCellImageView"
+        tools:srcCompat="@tools:sample/avatars" />
 </androidx.constraintlayout.widget.ConstraintLayout>
