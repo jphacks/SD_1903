@@ -276,16 +276,16 @@ def privacy_scan(request):
                             # TODO 人物名検出
                             advice_text_flags.append("PSN")
                             detected_tag_dict['text'] = True
-                    advice_text = ""
+                    # advice_text = ""
                     if "ART" in advice_text_flags:
-                        advice_text += "人工物,"
+                        advice_list.append(["Artifact", "文字に人工物が含まれています"])
                     if "ORG" in advice_text_flags:
-                        advice_text += "組織名,"
+                        advice_list.append(["Organization", "文字に組織名が含まれています"])
                     if "LOC" in advice_text_flags:
-                        advice_text += "場所,"
+                        advice_list.append(["Location", "場所を特定できる文字が写っています"])
                     if "PSN" in advice_text_flags:
-                        advice_text += "人,"
-                    advice_list.append(["text", advice_text])
+                        advice_list.append(["Person", "人名が写っています"])
+                    # advice_list.append(["text", advice_text])
                 else:
                     text_point = text_info['boundingPoly']['vertices']
                     top_x = text_point[0]['x'] if 'x' in text_point[0] else 0
@@ -308,7 +308,7 @@ def privacy_scan(request):
             for landmark in landmarks_ann[:1]:
                 desc = landmark['description']
                 location = (landmark['locations'][0]['latLng']['latitude'], landmark['locations'][0]['latLng']['longitude'])
-            advice_list.append(["landmark", "写真の場所は緯度%f 経度%f" % (location[0], location[1])])
+            advice_list.append(["Landmark", "写真の場所は緯度%f 経度%f" % (location[0], location[1])])
 
         # モザイク処理
         for mosaic_point in return_mosaic_list:
@@ -356,9 +356,9 @@ def privacy_scan(request):
 
         # アドバイス構文最終構築
         if detected_tag_dict['face']:
-            advice_list.append(["face","背景に人の顔があります。加工しましょう"])
+            advice_list.append(["Face","背景に人の顔があります。加工しましょう"])
         if detected_tag_dict['pupil']:
-            advice_list.append(['pupil', '瞳に映る景色から住所を特定されるかもしれません'])
+            advice_list.append(['Pupil', '瞳に映る景色から住所を特定されるかもしれません'])
 
 
         # レスポンスデータ作成
