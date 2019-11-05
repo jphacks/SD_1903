@@ -266,16 +266,21 @@ class ScanActivity : AppCompatActivity() {
                         adviceListView.adapter = AdviceAdapter(this, resultJSONObj.getJSONArray("advice"))
                     }
 
+                    if (resultJSONObj.has("danger_labels")) {
+                        Log.d("[LOG] - DEBUG", "danger_labels : %s".format(resultJSONObj.getJSONObject("danger_labels").toString()))
+                    }
+
                     enableMosaicButton(resultJSONObj.getJSONArray("mosaic_points").toString())
                     progressBar.isVisible = false
 
+                    // アニメーション処理
                     for (i in 0 until checkMarkJSON.size){
                         checkIdItem[i].setImageResource(if (checkMarkJSON[i]) {
                             R.drawable.ok
                         }else {
                             R.drawable.ng
                         })
-                        var icon = checkIdItem[i].drawable
+                        val icon = checkIdItem[i].drawable
                         if (icon is AnimatedVectorDrawable){
                             icon.start()
                         }
