@@ -6,14 +6,14 @@
 <!--    <stroke android:width="0.1dp"-->
 <!--        android:color="#0c0c0c"/>-->
     <corners
-        android:topRightRadius="30dp"
+        android:topRightRadius="0dp"
         android:bottomRightRadius="0dp"
         android:bottomLeftRadius="0dp"
         android:topLeftRadius="30dp"
         />
 <!--    <solid android:color="#333cb371"></solid>-->
     <gradient
-        android:startColor="#A0C922"
+        android:startColor="#CDDC39"
         android:endColor="#51D33B"
         android:angle="45"/>
 </shape>

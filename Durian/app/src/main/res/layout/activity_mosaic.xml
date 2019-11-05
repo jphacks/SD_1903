@@ -4,17 +4,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#D6D6D6"
     tools:context=".MosaicActivity">
 
     <ImageView
         android:id="@+id/mosaicView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:padding="10dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
         android:scaleType="fitCenter"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.724"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:srcCompat="@tools:sample/avatars" />
@@ -25,57 +27,72 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="@+id/mosaicView"
-        app:layout_constraintEnd_toEndOf="@+id/mosaicView"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/mosaicView"
         app:layout_constraintTop_toTopOf="@+id/mosaicView" />
-
-    <Button
-        android:id="@+id/tabButton_1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/tabButton_1_text"
-        app:layout_constraintBottom_toBottomOf="@+id/mosaicView"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/tabButton_2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/tabButton_2_text"
-        app:layout_constraintBottom_toBottomOf="@+id/mosaicView"
-        app:layout_constraintStart_toEndOf="@+id/tabButton_1" />
 
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="0dp"
-        android:layout_height="177dp"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:paddingBottom="80dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <Button
+            android:id="@+id/tabButton_1"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_gravity="start"
+            android:layout_marginLeft="50dp"
+            android:layout_weight="1"
+            android:background="@drawable/kakou_btn1"
+            android:text="@string/tabButton_1_text" />
+
+        <Button
+            android:id="@+id/tabButton_2"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_gravity="start"
+            android:layout_marginRight="50dp"
+            android:layout_weight="1"
+            android:background="@drawable/kakou_btn2"
+            android:text="@string/tabButton_2_text" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="match_parent"
+        android:background="#ffffff"
+        android:layout_height="0dp"
         android:gravity="center_horizontal"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent">
 
         <Button
             android:id="@+id/saveButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginRight="60dp"
-            android:layout_marginLeft="60dp"
-            android:background="@drawable/mosaic_btn"
-            android:text="@string/save_btn_text" />
+            android:layout_height="80dp"
+            android:layout_weight="1"
+            android:background="@drawable/mosaic_btn1"
+            android:text="@string/save_btn_text"
+            android:textAlignment="center"
+            android:textSize="16dp" />
 
         <Button
             android:id="@+id/backButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:layout_marginRight="60dp"
-            android:layout_marginLeft="60dp"
-            android:background="@drawable/mosaic_btn"
-            android:text="@string/nosave_btn_text" />
+            android:layout_height="80dp"
+            android:layout_weight="1"
+            android:background="@drawable/mosaic_btn2"
+            android:text="@string/nosave_btn_text"
+            android:textSize="16dp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
