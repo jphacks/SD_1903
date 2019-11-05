@@ -35,6 +35,14 @@ def mosaic_dsize(img, scale=0.1):
     mosaiced = cv2.resize(mosaiced, dsize=(w, h), interpolation=cv2.INTER_NEAREST)
     return mosaiced
 
+def mosaic_gaussianBlur(img):
+    if (not img.size > 0 or img is None):
+        return img
+    kernel = img.shape[0] if img.shape[0] > img.shape[1] else img.shape[1]
+    kernel = kernel if kernel % 2 == 1 else kernel + 1
+    img = cv2.GaussianBlur(img, (kernel, kernel), 0)
+    return img
+
 # スタンプ処理
 def stamp_replace(img, stamp):
     h, w = img.shape[:2]
@@ -90,9 +98,11 @@ def mosaic_process(request):
             # モザイク処理
             if name == 'face':
                 if end_y - top_y > 100 and end_x - top_x > 100:
-                    img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.1)
+                    # img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.1)
+                    img[top_y: end_y, top_x: end_x] = mosaic_gaussianBlur(img[top_y: end_y, top_x: end_x])
                 else:
-                    img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.1)
+                    # img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.1)
+                    img[top_y: end_y, top_x: end_x] = mosaic_gaussianBlur(img[top_y: end_y, top_x: end_x])
 
                 stamped_img[top_y: end_y, top_x: end_x] = stamp_replace(stamped_img[top_y: end_y, top_x: end_x], stamp)
 
@@ -102,10 +112,12 @@ def mosaic_process(request):
 
             if name == 'text':
                 if end_y - top_y <= 50 and end_x - top_x <= 50:
-                    img[top_y: end_y, top_x: end_x] = mosaic_dsize(img[top_y: end_y, top_x: end_x], scale=0.2)
+                    # img[top_y: end_y, top_x: end_x] = mosaic_dsize(img[top_y: end_y, top_x: end_x], scale=0.2)
+                    img[top_y: end_y, top_x: end_x] = mosaic_gaussianBlur(img[top_y: end_y, top_x: end_x])
                     stamped_img[top_y: end_y, top_x: end_x] = mosaic_dsize(stamped_img[top_y: end_y, top_x: end_x], scale=0.2)
                 else:
-                    img[top_y: end_y, top_x: end_x] = mosaic_dsize(img[top_y: end_y, top_x: end_x], scale=0.1)
+                    img[top_y: end_y, top_x: end_x] = mosaic_gaussianBlur(img[top_y: end_y, top_x: end_x])
+                    # img[top_y: end_y, top_x: end_x] = mosaic_dsize(img[top_y: end_y, top_x: end_x], scale=0.1)
                     stamped_img[top_y: end_y, top_x: end_x] = mosaic_dsize(stamped_img[top_y: end_y, top_x: end_x], scale=0.1)
 
         # ndarrayをエンコード
