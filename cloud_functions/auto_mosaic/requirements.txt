@@ -3,3 +3,4 @@ opencv-python
 Pillow
 google-cloud
 google-cloud-storage
+pandas

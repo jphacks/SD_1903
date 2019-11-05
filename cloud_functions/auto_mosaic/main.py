@@ -2,6 +2,7 @@ import os
 from flask import escape, helpers
 import json
 import numpy as np
+import pandas as pd
 import cv2
 import requests
 from PIL import Image
@@ -12,6 +13,13 @@ from google.cloud import storage
 
 GOOGLE_IMG_ANNOTATE_URL = 'https://vision.googleapis.com/v1/images:annotate'
 GOO_TEXT_ANNOTATE_URL = 'https://labs.goo.ne.jp/api/entity'
+
+# Storageから統計データを取得
+client = storage.Client()
+bucket = client.get_bucket('cras_storage')
+# Storageからデータベース取得
+db_blob = bucket.get_blob('durian_db.json')
+db_json = json.loads(db_blob.download_as_string().decode('utf-8'))
 
 def get_eye_point(res):
     landmarks = res['landmarks']
@@ -68,6 +76,61 @@ def stamp_replace(img, stamp):
     stamp = cv2.resize(stamp, dsize=(w, h), interpolation=cv2.INTER_NEAREST)
     return stamp
 
+# 統計データ更新
+def statistics_update(statistics, data):
+    # 統計データ更新
+    if 'face' in statistics:
+        statistics['face'] += 1 if data['face'] else 0
+    else:
+        statistics['face'] = 1 if data['face'] else 0
+    if 'pupil' in statistics:
+        statistics['pupil'] += 1 if data['pupil'] else 0
+    else:
+        statistics['pupil'] = 1 if data['pupil'] else 0
+    if 'finger' in statistics:
+        statistics['finger'] += 1 if data['finger'] else 0
+    else:
+        statistics['finger'] = 1 if data['finger'] else 0
+    if 'text' in statistics:
+        statistics['text'] += 1 if data['text'] else 0
+    else:
+        statistics['text'] = 1 if data['text'] else 0
+    if 'landmark' in statistics:
+        statistics['landmark'] += 1 if data['landmark'] else 0
+    else:
+        statistics['landmark'] = 1 if data['landmark'] else 0
+    
+    return statistics
+
+# ラベル統計データの上位10
+def get_savings_labels():
+    if "savings_labels" not in db_json:
+        db_json["savings_labels"] = {}
+    savings_labels = db_json["savings_labels"]
+    if len(savings_labels.keys()) == 0:
+        return None
+        
+    df = pd.DataFrame({
+        'label': list(savings_labels.keys()),
+        'value': [savings_labels[key] for key in list(savings_labels.keys())]
+    })
+    df = df.sort_values('value', ascending=False).iloc[0:10]
+    return df
+
+# ラベル統計データ更新
+def update_savings_labels(savings, labels):
+    # TODO: 処理
+    # key_list = list(detecting.keys())
+    # for key in key_list:
+    #     if key not in savings: 
+    #         savings[key] = {}
+    #         savings[key]["total"] = 0
+    for label in labels:
+        savings[label] = savings[label]+1 if label in savings else 1
+
+    return savings
+
+
 
 def auto_mosaic(request):
     """Responds to any HTTP request.
@@ -84,6 +147,11 @@ def auto_mosaic(request):
     elif request_json and 'message' in request_json:
         return request_json['message']
     elif request_json and 'img' in request_json:
+        if 'savings_labels' not in db_json:
+            db_json['savings_labels'] = {}
+        if db_json['savings_labels'] is None:
+            db_json['savings_labels'] = {}
+        savings_labels = db_json['savings_labels']
 
         # APIKey取得
         google_api_key = ''
@@ -150,8 +218,15 @@ def auto_mosaic(request):
         res_json = response.json()["responses"]
         img_ann = res_json[0]
 
+        # 危険度が高いラベルリスト
+        danger_labels = get_savings_labels()
+
         # 確認されたラベルリスト
-        check_label_list = []
+        checked_labels = []
+        # 危険度が高いラベルと一致したラベルリスト
+        result_danger_labels = {}
+        # 統計ラベルリスト
+        statistics_labels = []
         # ラベル解析
         if 'labelAnnotations' in img_ann:
             for label_info in img_ann['labelAnnotations']:
@@ -160,26 +235,36 @@ def auto_mosaic(request):
                 desc = label_info["description"]
                 if desc == "Selfie":
                     # 自撮り
-                    check_label_list.append("Selfie")
-                    # TODO: 瞳警戒
-                    # TODO: 背景警戒
-                    # TODO: 文字警告
-                if desc == "V Sign":
+                    checked_labels.append("Selfie")
+                    # ラベル追加    
+                    statistics_labels.append(desc)
+                elif desc == "V Sign":
                     # Vサイン
-                    check_label_list.append("V Sign")
-                    # TODO: 指紋警戒
+                    checked_labels.append("V Sign")
+                elif desc == "Finger":
+                    checked_labels.append("Finger")
                     detected_tag_dict['finger'] = True
-                if desc == "Finger":
-                    check_label_list.append("Finger")
-                    detected_tag_dict['finger'] = True
-                    advice_list.append(["figner", "指の指紋が読み取られ、悪用されるかもしれません"])
-                if desc == "Screen" or desc == "Display":
-                    check_label_list.append("Screen")
-                    # 画面
-                    # TODO: 文字警告
-                    advice_list.append(["display", "画面に映る情報が個人の特定に繋がる可能性があります"])
-                    
+                    advice_list.append(["指紋", "指の指紋が読み取られ、悪用されるかもしれません"])
+                elif desc == "Screen" or desc == "Display":
+                    checked_labels.append("Screen")
+                    advice_list.append(["画面", "画面に映る情報が個人の特定に繋がる可能性があります"])
+                elif desc == "School Uniform" or desc == "Uniform":
+                    checked_labels.append("Uniform")
+                    advice_list.append(["制服", "制服から写真の地域がバレる可能性があります"])
+                else:
+                    # ラベル追加    
+                    statistics_labels.append(desc)
 
+            # 危険性が高いラベルが含まれているかチェック
+            if danger_labels is not None:
+                top_danger_labels = list(danger_labels["label"])
+                top_danger_values = list(danger_labels["value"])
+                for label, value in zip(top_danger_labels, top_danger_values):
+                    if label in statistics_labels:
+                        result_danger_labels[label] = {
+                            "check": label in statistics_labels,
+                            "value": value
+                        }
 
         if 'faceAnnotations' in img_ann:
             # 顔検出に引っかかったら統計データ更新
@@ -267,8 +352,8 @@ def auto_mosaic(request):
                     return_mosaic_list.append(tmp_face_point)
                     detected_tag_dict['face'] = True
                 else:
-                    # 顔は対象外だが、自撮りの場合は瞳にモザイク
-                    if 'Selfie' in check_label_list or img.shape[0]*img.shape[1] / 4 > float(tmp_face_point['size']):
+                    # 顔は対象外だが、自撮りの場合は瞳にモザイク（かつ、顔のサイズが画像の1/2以上）
+                    if 'Selfie' in checked_labels and img.shape[0]*img.shape[1] / 2 > float(tmp_face_point['size']):
                         return_mosaic_list.append(tmp_left_pupil_points_list[i])
                         return_mosaic_list.append(tmp_right_pupil_points_list[i])
                         detected_tag_dict['pupil'] = True
@@ -305,16 +390,16 @@ def auto_mosaic(request):
                             # TODO 人物名検出
                             advice_text_flags.append("PSN")
                             detected_tag_dict['text'] = True
-                    advice_text = ""
+                    # advice_text = ""
                     if "ART" in advice_text_flags:
-                        advice_text += "人工物,"
+                        advice_list.append(["人工物", "文字に人工物が含まれています"])
                     if "ORG" in advice_text_flags:
-                        advice_text += "組織名,"
+                        advice_list.append(["組織名", "文字に組織名が含まれています"])
                     if "LOC" in advice_text_flags:
-                        advice_text += "場所,"
+                        advice_list.append(["場所", "場所を特定できる文字が写っています"])
                     if "PSN" in advice_text_flags:
-                        advice_text += "人,"
-                    advice_list.append(["text", advice_text])
+                        advice_list.append(["名前", "人名が写っています"])
+                    # advice_list.append(["text", advice_text])
                 else:
                     text_point = text_info['boundingPoly']['vertices']
                     top_x = text_point[0]['x'] if 'x' in text_point[0] else 0
@@ -337,48 +422,24 @@ def auto_mosaic(request):
             for landmark in landmarks_ann[:1]:
                 desc = landmark['description']
                 location = (landmark['locations'][0]['latLng']['latitude'], landmark['locations'][0]['latLng']['longitude'])
-            advice_list.append(["landmark", "写真の場所は緯度%f 経度%f" % (location[0], location[1])])
+            advice_list.append(["Landmark", "写真の場所は緯度%f 経度%f" % (location[0], location[1])])
 
-        # モザイク処理
-        # for mosaic_point in return_mosaic_list:
-        #     img = cv2.rectangle(
-        #         img, 
-        #         (mosaic_point["top_x"], mosaic_point["top_y"]),
-        #         (mosaic_point["end_x"], mosaic_point["end_y"]),
-        #         mosaic_point['color'],
-        #         mosaic_point["width"])
-        
-        # Storageから統計データを取得
-        client = storage.Client()
-        bucket = client.get_bucket('cras_storage')
-        # https://console.cloud.google.com/storage/browser/[bucket-id]/
-        db_blob = bucket.get_blob('durian_db.json')
-        db_json = json.loads(db_blob.download_as_string().decode('utf-8'))
+# ----------------------------------
+
+        # 統計データ更新
         if 'statistics' not in db_json:
             db_json['statistics'] = {}
         statistics_dict = db_json['statistics']
+        statistics_dict = statistics_update(statistics_dict, detected_tag_dict)
 
-        if 'face' in statistics_dict:
-            statistics_dict['face'] += 1 if detected_tag_dict['face'] else 0
-        else:
-            statistics_dict['face'] = 1 if detected_tag_dict['face'] else 0
-        if 'pupil' in statistics_dict:
-            statistics_dict['pupil'] += 1 if detected_tag_dict['pupil'] else 0
-        else:
-            statistics_dict['pupil'] = 1 if detected_tag_dict['pupil'] else 0
-        if 'finger' in statistics_dict:
-            statistics_dict['finger'] += 1 if detected_tag_dict['finger'] else 0
-        else:
-            statistics_dict['finger'] = 1 if detected_tag_dict['finger'] else 0
-        if 'text' in statistics_dict:
-            statistics_dict['text'] += 1 if detected_tag_dict['text'] else 0
-        else:
-            statistics_dict['text'] = 1 if detected_tag_dict['text'] else 0
-        if 'landmark' in statistics_dict:
-            statistics_dict['landmark'] += 1 if detected_tag_dict['landmark'] else 0
-        else:
-            statistics_dict['landmark'] = 1 if detected_tag_dict['landmark'] else 0
+        # ラベル学習用データ更新
+        savings_labels = update_savings_labels(savings_labels, labels=statistics_labels)
 
+
+        # 統計データアップロード
+        db_json['statistics'] = statistics_dict
+        db_json['savings_labels'] = savings_labels
+        db_blob.upload_from_string(json.dumps(db_json), content_type="application/json")
         # # 統計データ更新
         # db_json['statistics'] = statistics_dict
         # db_blob.upload_from_string(json.dumps(db_json))
