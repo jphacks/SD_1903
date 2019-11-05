@@ -29,12 +29,16 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:background="#D6D6D6">
 
                     <ImageView
                         android:id="@+id/detectionView"
-                        android:layout_width="match_parent"
-                        android:layout_height="600dp"
+                        android:layout_width="0dp"
+                        android:layout_height="500dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="16dp"
+                        android:background="#00BEBEBE"
                         android:scaleType="fitCenter"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -67,10 +71,10 @@
                     android:id="@+id/textView2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textAlignment="center"
-                    android:textSize="22dp"
                     android:layout_margin="20dp"
-                    android:text="@string/scan_result_label" />
+                    android:text="@string/scan_result_label"
+                    android:textAlignment="center"
+                    android:textSize="24sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -182,7 +186,7 @@
             <com.github.mikephil.charting.charts.BarChart
                 android:id="@+id/chart"
                 android:layout_width="match_parent"
-                android:layout_height="320dp"
+                android:layout_height="400dp"
                 android:layout_margin="20dp">
 
             </com.github.mikephil.charting.charts.BarChart>
@@ -192,17 +196,16 @@
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
                 android:layout_gravity="center_horizontal"
+                android:layout_marginTop="80dp"
                 >
 
                 <Button
                     android:id="@+id/addMosaicButton"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="80dp"
 
-                    android:background="@drawable/mosaic_btn"                 android:layout_marginTop="20dp"
-                    android:layout_marginBottom="20dp"
-                    android:layout_marginRight="60dp"
-                    android:layout_marginLeft="60dp"
+                    android:background="@drawable/mosaic_btn"
+                    android:textSize="16dp"
                     android:text="@string/mosaic_Button" />
             </LinearLayout>
 

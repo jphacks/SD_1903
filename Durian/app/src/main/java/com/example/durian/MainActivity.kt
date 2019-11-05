@@ -16,9 +16,9 @@ import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var cameraButton: ImageButton
-    private lateinit var pictureButton: ImageButton
-    private lateinit var multipleImagesButton: ImageButton
+    private lateinit var cameraButton: Button
+    private lateinit var pictureButton: Button
+    private lateinit var multipleImagesButton: Button
 
     private val REQUEST_PERMISSION_CAMERA = 1
     private val REQUEST_PERMISSION_WRITEFILE = 2

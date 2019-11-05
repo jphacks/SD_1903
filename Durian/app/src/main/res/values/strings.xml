@@ -5,15 +5,16 @@
     <string name="do_mosaic">モザイクをかける</string>
     <string name="cancel">キャンセル</string>
     <string name="save">保存する</string>
-    <string name="cmLabel">CAMERA</string>
-    <string name="picLabel">PICTURE</string>
+    <string name="cmLabel">写真をとる</string>
     <string name="select_btn_description">Slected below</string>
     <string name="save_btn_text">保存する</string>
     <string name="nosave_btn_text">保存しない</string>
     <string name="top_description">Detect your information and negligence</string>
     <string name="scan_advice_label">ユーザー全体の検出数</string>
     <string name="scan_result_label">Result</string>
-    <string name="mosaic_Button">モザイクをかける</string>
+    <string name="mosaic_Button">加工する</string>
     <string name="tabButton_1_text">モザイク</string>
     <string name="tabButton_2_text">スタンプ</string>
+    <string name="picsLabel">加工のみする</string>
+    <string name="picLabel">端末から選ぶ</string>
 </resources>

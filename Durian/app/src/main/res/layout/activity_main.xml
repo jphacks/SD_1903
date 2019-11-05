@@ -8,56 +8,6 @@
     android:background="@drawable/back_image"
     >
 
-
-    <ImageButton
-        android:id="@+id/cameraButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="72dp"
-        android:background="@drawable/top_button_frame"
-        android:elevation="20dp"
-        android:src="@drawable/ic_camera_alt_black_24dp"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.719" />
-
-    <ImageButton
-        android:id="@+id/pictureButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="72dp"
-        android:background="@drawable/top_button_frame"
-        android:elevation="20dp"
-        android:src="@drawable/ic_photo_library_black_24dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.718" />
-
-    <TextView
-        android:id="@+id/cameraText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/cmLabel"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/cameraButton"
-        app:layout_constraintStart_toStartOf="@+id/cameraButton"
-        app:layout_constraintTop_toBottomOf="@+id/cameraButton" />
-
-    <TextView
-        android:id="@+id/pictureText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/picLabel"
-        android:textStyle="bold"
-        app:layout_constraintBaseline_toBaselineOf="@+id/cameraText"
-        app:layout_constraintEnd_toEndOf="@+id/pictureButton"
-        app:layout_constraintHorizontal_bias="0.486"
-        app:layout_constraintStart_toStartOf="@+id/pictureButton" />
-
     <ImageView
         android:id="@+id/Logo"
         android:layout_width="0dp"
@@ -69,7 +19,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.292"
+        app:layout_constraintVertical_bias="0.35000002"
         app:srcCompat="@drawable/ic_durian_logo_all_black"
         tools:srcCompat="@drawable/ic_durian_logo_all_black" />
 
@@ -84,15 +34,47 @@
         app:layout_constraintTop_toBottomOf="@+id/Logo"
         app:layout_constraintVertical_bias="0.052" />
 
-    <ImageButton
-        android:id="@+id/multipleImagesButton"
-        android:layout_width="wrap_content"
+
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="32dp"
-        android:background="@drawable/top_button_frame"
+        android:layout_marginTop="36dp"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_photo_library_black_24dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView4"
+        app:layout_constraintVertical_bias="1.0">
+
+        <Button
+            android:id="@+id/cameraButton"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:background="@drawable/top_button_frame"
+            android:drawableLeft="@drawable/ic_camera_alt_black_24dp"
+            android:text="@string/cmLabel"
+
+            android:textSize="20dp" />
+
+        <Button
+            android:id="@+id/pictureButton"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:background="@drawable/top_button_frame"
+            android:drawableLeft="@drawable/ic_photo_library_black_24dp"
+            android:text="@string/picLabel"
+
+            android:textSize="20dp" />
+
+        <Button
+            android:id="@+id/multipleImagesButton"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:background="@drawable/top_button_frame"
+            android:drawableLeft="@drawable/ic_photo_filter_black_24dp"
+
+            android:text="@string/picsLabel"
+            android:textSize="20dp" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
