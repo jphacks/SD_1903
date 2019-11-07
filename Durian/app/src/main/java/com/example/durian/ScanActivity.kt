@@ -250,8 +250,8 @@ class ScanActivity : AppCompatActivity() {
 //                        statisticsObj.getInt("text").toFloat(),
 //                        statisticsObj.getInt("landmark").toFloat())
 //                }
-                chart.data = BarData(500f,450f,400f,350f,300f,250f,200f,150f,100f,50f)
-                setupBarchart("Aa","Ba","Ca","Da","Ea","Fa","Ga","Ha","Ia","Ja")
+                chart.data = barData(500f,450f,400f,350f,300f,250f,200f,150f,100f,50f , 0f)
+                setupbarchart("Aa","Ba","Ca","Da","Ea","Fa","Ga","Ha","Ia","Ja","")
 
                 if (resultJSONObj.has("checks")) {
                     val checksObj = resultJSONObj.getJSONObject("checks")
@@ -301,7 +301,8 @@ class ScanActivity : AppCompatActivity() {
         }.start()
     }
 
-    private fun BarData(item10: Float,
+    private fun barData(item11: Float,
+                        item10: Float,
                         item9: Float,
                         item8: Float,
                         item7: Float,
@@ -322,6 +323,7 @@ class ScanActivity : AppCompatActivity() {
         values.add(BarEntry(7f,item8))
         values.add(BarEntry(8f,item9))
         values.add(BarEntry(9f,item10))
+        values.add(BarEntry(10f, item11))
 
 
 
@@ -330,6 +332,7 @@ class ScanActivity : AppCompatActivity() {
             axisDependency = YAxis.AxisDependency.RIGHT
             setDrawIcons(false)
             setDrawValues(true)
+            setValues(values)
             valueTextSize = 12f
         }
 
@@ -338,7 +341,8 @@ class ScanActivity : AppCompatActivity() {
         return data
     }
 
-    private fun setupBarchart(label_10:String,
+    private fun setupbarchart(label_11:String,
+                              label_10:String,
                               label_9:String,
                               label_8:String,
                               label_7:String,
@@ -348,7 +352,7 @@ class ScanActivity : AppCompatActivity() {
                               label_3:String,
                               label_2:String,
                               label_1:String){
-        val xAxisValue = ArrayList<String>()
+        val xAxisValue = mutableListOf<String>()
         xAxisValue.add(label_1)
         xAxisValue.add(label_2)
         xAxisValue.add(label_3)
@@ -359,19 +363,19 @@ class ScanActivity : AppCompatActivity() {
         xAxisValue.add(label_8)
         xAxisValue.add(label_9)
         xAxisValue.add(label_10)
+        xAxisValue.add(label_11)
 
         chart.apply {
             description.isEnabled = false
-//            description.textSize = 0f
+            description.textSize = 0f
 //            LargeValueFormatter()
-            setFitBars(true)
-//            fitsSystemWindows = true
+            xAxis.axisMinimum = 0f
+            xAxis.axisMaximum = 11f
 
             // ここのmaxYRangeの値を適度に変更すること！
-            setVisibleYRange(0f, 800f ,YAxis.AxisDependency.RIGHT)
+            setVisibleYRange(0f, 700f ,YAxis.AxisDependency.LEFT)
 
-
-//            data.isHighlightEnabled = false
+            data.isHighlightEnabled = false
             invalidate()
             isScaleXEnabled = false
             setPinchZoom(false)
@@ -389,18 +393,29 @@ class ScanActivity : AppCompatActivity() {
                 setDrawGridLines(false)
                 setDrawLabels(true)
                 textSize = 12f
-                position = XAxis.XAxisPosition.TOP_INSIDE
+
+                position = XAxis.XAxisPosition.BOTTOM_INSIDE
                 valueFormatter = IndexAxisValueFormatter(xAxisValue)
-                spaceMin  = 5f
-                spaceMax = 5f
+
+                setLabelCount(11)
+                mAxisMinimum = 0f
+                mAxisMaximum = 11f
+//                mAxisRange = 12f
+                setCenterAxisLabels(false)
+                setAvoidFirstLastClipping(true)
+                spaceMin  = 4f
+                spaceMax = 4f
             }
 
             axisRight.isEnabled = false
             setScaleEnabled(false)
+            axisRight.setDrawZeroLine(true)
 
             axisLeft.apply {
+//                LargeValueFormatter()
                 setDrawGridLines(true)
-                setDrawZeroLine(true)
+//                spaceTop = 1f
+                axisMinimum = 0f
             }
         }
     }
