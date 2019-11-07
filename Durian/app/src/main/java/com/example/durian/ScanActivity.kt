@@ -25,6 +25,7 @@ import java.util.*
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.AnimatedVectorDrawable
+import android.view.View
 import android.widget.*
 import androidx.core.view.setPadding
 import com.github.mikephil.charting.charts.BarChart
@@ -245,16 +246,17 @@ class ScanActivity : AppCompatActivity() {
                     pref.edit().putString("tmp_img", Base64.encodeToString(imgBytes, Base64.DEFAULT)).apply()
                 }
 
-                if (resultJSONObj.has("statistics")) {
-                    val statisticsObj = resultJSONObj.getJSONObject("statistics")
-                    chart.data = BarData(
-                        statisticsObj.getInt("face").toFloat(),
-                        statisticsObj.getInt("pupil").toFloat(),
-                        statisticsObj.getInt("finger").toFloat(),
-                        statisticsObj.getInt("text").toFloat(),
-                        statisticsObj.getInt("landmark").toFloat())
-                }
-                setupBarchart()
+//                if (resultJSONObj.has("statistics")) {
+//                    val statisticsObj = resultJSONObj.getJSONObject("statistics")
+//                    chart.data = BarData(
+//                        statisticsObj.getInt("face").toFloat(),
+//                        statisticsObj.getInt("pupil").toFloat(),
+//                        statisticsObj.getInt("finger").toFloat(),
+//                        statisticsObj.getInt("text").toFloat(),
+//                        statisticsObj.getInt("landmark").toFloat())
+//                }
+                chart.data = BarData(500f,450f,400f,350f,300f,250f,200f,150f,100f,50f)
+                setupBarchart("Aa","Ba","Ca","Da","Ea","Fa","Ga","Ha","Ia","Ja")
 
                 if (resultJSONObj.has("checks")) {
                     val checksObj = resultJSONObj.getJSONObject("checks")
@@ -312,18 +314,29 @@ class ScanActivity : AppCompatActivity() {
         }.start()
     }
 
-    private fun BarData(face: Float, pupil: Float, hand: Float, char: Float, landmark: Float): BarData {
+    private fun BarData(item10: Float,
+                        item9: Float,
+                        item8: Float,
+                        item7: Float,
+                        item6: Float,
+                        item5: Float,
+                        item4: Float,
+                        item3: Float,
+                        item2: Float,
+                        item1: Float): BarData {
         val values = mutableListOf<BarEntry>()
-        val faceval = face
-        val pupilval = pupil
-        val handval = hand
-        val charval = char
-        val landval = landmark
-        values.add(BarEntry(0f,faceval))
-        values.add(BarEntry(2f,pupilval))
-        values.add(BarEntry(4f,handval))
-        values.add(BarEntry(6f,charval))
-        values.add(BarEntry(8f,landval))
+        values.add(BarEntry(0f,item1))
+        values.add(BarEntry(1f,item2))
+        values.add(BarEntry(2f,item3))
+        values.add(BarEntry(3f,item4))
+        values.add(BarEntry(4f,item5))
+        values.add(BarEntry(5f,item6))
+        values.add(BarEntry(6f,item7))
+        values.add(BarEntry(7f,item8))
+        values.add(BarEntry(8f,item9))
+        values.add(BarEntry(9f,item10))
+
+
 
         val yVals = BarDataSet(values,"").apply {
             setColors(Color.GREEN)
@@ -334,46 +347,53 @@ class ScanActivity : AppCompatActivity() {
         }
 
         val data = BarData(yVals)
-        data.barWidth = 1.2f
+        data.barWidth = 0.7f
         return data
     }
 
-    private fun setupBarchart(){
+    private fun setupBarchart(label_10:String,
+                              label_9:String,
+                              label_8:String,
+                              label_7:String,
+                              label_6:String,
+                              label_5:String,
+                              label_4:String,
+                              label_3:String,
+                              label_2:String,
+                              label_1:String){
         val xAxisValue = ArrayList<String>()
-        xAxisValue.add("face")
-        xAxisValue.add("")
-        xAxisValue.add("pupil")
-        xAxisValue.add("")
-        xAxisValue.add("finger")
-        xAxisValue.add("")
-        xAxisValue.add("char")
-        xAxisValue.add("")
-        xAxisValue.add("landmark")
-        xAxisValue.add("")
+        xAxisValue.add(label_1)
+        xAxisValue.add(label_2)
+        xAxisValue.add(label_3)
+        xAxisValue.add(label_4)
+        xAxisValue.add(label_5)
+        xAxisValue.add(label_6)
+        xAxisValue.add(label_7)
+        xAxisValue.add(label_8)
+        xAxisValue.add(label_9)
+        xAxisValue.add(label_10)
 
         chart.apply {
             description.isEnabled = false
 //            description.textSize = 0f
 //            LargeValueFormatter()
-//            setFitBars(true)
+            setFitBars(true)
+//            fitsSystemWindows = true
+
+            // ここのmaxYRangeの値を適度に変更すること！
+            setVisibleYRange(0f, 800f ,YAxis.AxisDependency.RIGHT)
+
+
 //            data.isHighlightEnabled = false
             invalidate()
             isScaleXEnabled = false
             setPinchZoom(false)
             setDrawGridBackground(false)
+            setDrawValueAboveBar(true)
+
 
             legend.apply{
                 isEnabled = false
-//                typeface = mTypeface
-//                textColor = Color.BLACK
-//                verticalAlignment = Legend.LegendVerticalAlignment.TOP
-//                horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
-//                orientation = Legend.LegendOrientation.HORIZONTAL
-//                setDrawInside(false)
-////                yOffset = 2f
-////                xOffset = 2f
-//                yEntrySpace = 0f
-//                textSize = 5f
             }
 
             xAxis.apply {
@@ -382,32 +402,18 @@ class ScanActivity : AppCompatActivity() {
                 setDrawGridLines(false)
                 setDrawLabels(true)
                 textSize = 12f
-                position = XAxis.XAxisPosition.BOTTOM
+                position = XAxis.XAxisPosition.TOP_INSIDE
                 valueFormatter = IndexAxisValueFormatter(xAxisValue)
-////                axisLineWidth = 1f
-//                mAxisMinimum = 0f
-//                mAxisMaximum = 5f
-////                labelCount = 5
-//                setCenterAxisLabels(true)
-//                setAvoidFirstLastClipping(true)
-//                spaceMin  = 5f
-//                spaceMax = 5f
+                spaceMin  = 5f
+                spaceMax = 5f
             }
 
             axisRight.isEnabled = false
             setScaleEnabled(false)
 
-//            setVisibleXRangeMaximum(1f)
-//            setVisibleXRangeMinimum(1f)
-
             axisLeft.apply {
-                valueFormatter  = LargeValueFormatter()
                 setDrawGridLines(true)
-//                spaceTop = 1f
-//                spaceBottom = 0f
-//                axisMinimum = 0f
-//                data = barData
-//                setVisibleXRange(0f,2f)
+                setDrawZeroLine(true)
             }
         }
     }
