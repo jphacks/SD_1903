@@ -354,7 +354,7 @@ def auto_mosaic(request):
                 })
 
             for i, tmp_face_point in enumerate(tmp_face_points_list):
-                if (float(tmp_face_point['size']) < face_max_size*0.5 or float(tmp_face_point['size']) < img.shape[0]*img.shape[1] / 100):
+                if (float(tmp_face_point['size']) < face_max_size*0.5 or float(tmp_face_point['size']) < img.shape[0]*img.shape[1]/200):
                     # 最大の顔サイズの0.5 倍より小さければモザイク対象 || 画像の1/100のサイズもない場合 
                     del tmp_face_point['size']
                     return_mosaic_list.append(tmp_face_point)

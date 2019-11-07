@@ -9,10 +9,12 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.util.TimeUtils
 import android.widget.Button
 import android.widget.ImageButton
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
@@ -46,7 +48,7 @@ class MainActivity : AppCompatActivity() {
         val fetchJob = JobInfo.Builder(1, ComponentName(this, ScanJobService::class.java))
 //            .setMinimumLatency(5000)
 //            .setOverrideDeadline(10000)
-            .setPeriodic(10000 * 60 * 60 * 24)
+            .setPeriodic(TimeUnit.DAYS.toMillis(1))
             .setPersisted(true)
             .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
             .build()

@@ -189,15 +189,17 @@ def privacy_scan(request):
         res_json = response.json()["responses"]
         img_ann = res_json[0]
 
-        # 危険度が高いラベルリスト
-        danger_labels = get_savings_labels()
 
         # 確認されたラベルリスト
         checked_labels = []
-        # 危険度が高いラベルと一致したラベルリスト
-        result_danger_labels = []
         # 統計ラベルリスト
         statistics_labels = []
+
+        # 危険度が高いラベルリスト
+        danger_labels = get_savings_labels()
+        # 危険度が高いラベルと一致したラベルリスト
+        result_danger_labels = []
+
         # ラベル解析
         if 'labelAnnotations' in img_ann:
             for label_info in img_ann['labelAnnotations']:
@@ -227,16 +229,22 @@ def privacy_scan(request):
                     # ラベル追加    
                     statistics_labels.append(desc)
 
-            # 危険性が高いラベルが含まれているかチェック
-            if danger_labels is not None:
-                top_danger_labels = list(danger_labels["label"])
-                top_danger_values = list(danger_labels["value"])
-                for label, value in zip(top_danger_labels, top_danger_values):
-                    result_danger_labels.append({
-                        "label": label,
-                        "check": label in statistics_labels,
-                        "value": value
-                    })
+        # 危険性が高いラベルが含まれているかチェック
+        if danger_labels is not None:
+            top_danger_labels = list(danger_labels["label"])
+            top_danger_values = list(danger_labels["value"])
+            for label, value in zip(top_danger_labels, top_danger_values):
+                result_danger_labels.append({
+                    "label": label,
+                    "check": label in statistics_labels,
+                    "value": value
+                })
+        else:
+            result_danger_labels.append({
+                "label": "None",
+                "check": False,
+                "value": 100
+            })
 
         if 'faceAnnotations' in img_ann:
             # 顔検出に引っかかったら統計データ更新
@@ -398,7 +406,7 @@ def privacy_scan(request):
             for landmark in landmarks_ann[:1]:
                 desc = landmark['description']
                 location = (landmark['locations'][0]['latLng']['latitude'], landmark['locations'][0]['latLng']['longitude'])
-            advice_list.append(["Landmark", "写真の場所は緯度%f 経度%f" % (location[0], location[1])])
+            advice_list.append(["住所", "写真の場所は%sと判断されました。\n緯度%f 経度%f" % (desc, location[0], location[1])])
 
 # ----------------------------------
 
@@ -437,6 +445,14 @@ def privacy_scan(request):
 
         if len(advice_list) == 0:
             advice_list.append(["検出なし", "この画像に危険性は見つかりませんでした"])
+
+        # 危険度（高）のラベル整理
+        if len(result_danger_labels) <= 0:
+            result_danger_labels.append({
+                "label": "Label Not Found.",
+                "check": False,
+                "value": 200
+            })
 
         # レスポンスデータ作成
         result, img_bytes = cv2.imencode('.jpg', img)

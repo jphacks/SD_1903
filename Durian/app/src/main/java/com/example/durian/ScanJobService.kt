@@ -68,45 +68,54 @@ class ScanJobService(): JobService() {
                         val presentPath = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
                         val file = File(presentPath)
                         val uri = Uri.fromFile(file)
-                        var bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
-                        if (bitmap == null) {
-                            return async_flag
-                        }
-                        bitmap = resizeBitmap(bitmap)
 
-                        val byteBuffer = ByteArrayOutputStream()
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteBuffer)
-                        val handler = Handler()
-                        val detectImgName = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME))
-                        Thread {
-                            val url = URL("https://us-central1-crasproject.cloudfunctions.net/privacy_scan")
-                            val jsonObj = JSONObject()
-                            jsonObj.put("img", Base64.encodeToString(byteBuffer.toByteArray(), Base64.DEFAULT))
-                            val resultJson: JSONObject? = cloudFunRequest(url, jsonObj.toString())
-                            if (resultJson != null) {
-                                if (resultJson.has("img")) {
-                                    val imgStr = resultJson.getString("img")
-                                    val imgByte = Base64.decode(imgStr, Base64.DEFAULT)
-                                    val imgByteStream = ByteArrayInputStream(imgByte)
-
-                                    if (resultJson.has("checks")) {
-                                        val checksObj = resultJson.getJSONObject("checks")
-                                        if (checksObj.getBoolean("face") ||
-                                            checksObj.getBoolean("pupil") ||
-                                            checksObj.getBoolean("finger") ||
-                                            checksObj.getBoolean("text") ||
-                                            checksObj.getBoolean("landmark")) {
-                                            handler.post {
-                                                notifyWarning(this, detectImgName, bitmap)
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    Log.d("[Log] onActivityResult", "img key is not find.")
-                                }
+                        try {
+                            var bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
+                            if (bitmap == null) {
+                                return async_flag
                             }
-                        }.start()
-                        async_flag = true
+                            bitmap = resizeBitmap(bitmap)
+
+                            val byteBuffer = ByteArrayOutputStream()
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteBuffer)
+                            val handler = Handler()
+                            val detectImgName = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME))
+                            Thread {
+                                val url = URL("https://us-central1-crasproject.cloudfunctions.net/privacy_scan")
+                                val jsonObj = JSONObject()
+                                jsonObj.put("img", Base64.encodeToString(byteBuffer.toByteArray(), Base64.DEFAULT))
+                                val resultJson: JSONObject? = cloudFunRequest(url, jsonObj.toString())
+                                if (resultJson != null) {
+                                    if (resultJson.has("img")) {
+                                        val imgStr = resultJson.getString("img")
+                                        val imgByte = Base64.decode(imgStr, Base64.DEFAULT)
+                                        val imgByteStream = ByteArrayInputStream(imgByte)
+
+                                        if (resultJson.has("checks")) {
+                                            // どれか１つでも、危険性にひっかるなら通知
+                                            val checksObj = resultJson.getJSONObject("checks")
+                                            if (checksObj.getBoolean("face") ||
+                                                checksObj.getBoolean("pupil") ||
+                                                checksObj.getBoolean("finger") ||
+                                                checksObj.getBoolean("text") ||
+                                                checksObj.getBoolean("landmark")) {
+                                                handler.post {
+                                                    notifyWarning(this, detectImgName, bitmap)
+                                                }
+                                            }
+                                        } else {
+                                            Log.d("[Log] - DEBUG", "Clear ScanJob")
+                                        }
+                                    } else {
+                                        Log.d("[Log] onActivityResult", "img key is not find.")
+                                    }
+                                }
+                            }.start()
+                            async_flag = true
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+
                     }
 
                     if (!cursor.moveToNext()) {

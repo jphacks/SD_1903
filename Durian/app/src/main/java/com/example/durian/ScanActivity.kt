@@ -282,28 +282,30 @@ class ScanActivity : AppCompatActivity() {
                     if (resultJSONObj.has("danger_labels")) {
                         val dangerLabels = resultJSONObj.getJSONArray("danger_labels")
                         Log.d("[LOG] - DEBUG", "danger_labels -> %s".format(dangerLabels.toString()))
-                        chart.data = BarData(
-                            dangerLabels.getJSONObject(0).getInt("value").toFloat(),
-                            dangerLabels.getJSONObject(1).getInt("value").toFloat(),
-                            dangerLabels.getJSONObject(2).getInt("value").toFloat(),
-                            dangerLabels.getJSONObject(3).getInt("value").toFloat(),
-                            dangerLabels.getJSONObject(4).getInt("value").toFloat(),
-                            dangerLabels.getJSONObject(5).getInt("value").toFloat(),
-                            dangerLabels.getJSONObject(6).getInt("value").toFloat(),
-                            dangerLabels.getJSONObject(7).getInt("value").toFloat(),
-                            dangerLabels.getJSONObject(8).getInt("value").toFloat(),
-                            dangerLabels.getJSONObject(9).getInt("value").toFloat())
-                        setupBarchart(
-                            dangerLabels.getJSONObject(0).getString("label"),
-                            dangerLabels.getJSONObject(1).getString("label"),
-                            dangerLabels.getJSONObject(2).getString("label"),
-                            dangerLabels.getJSONObject(3).getString("label"),
-                            dangerLabels.getJSONObject(4).getString("label"),
-                            dangerLabels.getJSONObject(5).getString("label"),
-                            dangerLabels.getJSONObject(6).getString("label"),
-                            dangerLabels.getJSONObject(7).getString("label"),
-                            dangerLabels.getJSONObject(8).getString("label"),
-                            dangerLabels.getJSONObject(9).getString("label"))
+                        if (dangerLabels.length() >= 10) {
+                            chart.data = BarData(
+                                dangerLabels.getJSONObject(0).getInt("value").toFloat(),
+                                dangerLabels.getJSONObject(1).getInt("value").toFloat(),
+                                dangerLabels.getJSONObject(2).getInt("value").toFloat(),
+                                dangerLabels.getJSONObject(3).getInt("value").toFloat(),
+                                dangerLabels.getJSONObject(4).getInt("value").toFloat(),
+                                dangerLabels.getJSONObject(5).getInt("value").toFloat(),
+                                dangerLabels.getJSONObject(6).getInt("value").toFloat(),
+                                dangerLabels.getJSONObject(7).getInt("value").toFloat(),
+                                dangerLabels.getJSONObject(8).getInt("value").toFloat(),
+                                dangerLabels.getJSONObject(9).getInt("value").toFloat())
+                            setupBarchart(
+                                dangerLabels.getJSONObject(0).getString("label"),
+                                dangerLabels.getJSONObject(1).getString("label"),
+                                dangerLabels.getJSONObject(2).getString("label"),
+                                dangerLabels.getJSONObject(3).getString("label"),
+                                dangerLabels.getJSONObject(4).getString("label"),
+                                dangerLabels.getJSONObject(5).getString("label"),
+                                dangerLabels.getJSONObject(6).getString("label"),
+                                dangerLabels.getJSONObject(7).getString("label"),
+                                dangerLabels.getJSONObject(8).getString("label"),
+                                dangerLabels.getJSONObject(9).getString("label"))
+                        }
                     }
 
                     enableMosaicButton(resultJSONObj.getJSONArray("mosaic_points").toString())
