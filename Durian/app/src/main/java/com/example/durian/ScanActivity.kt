@@ -256,6 +256,7 @@ class ScanActivity : AppCompatActivity() {
 //                        statisticsObj.getInt("landmark").toFloat())
 //                }
 
+
                 if (resultJSONObj.has("checks")) {
                     val checksObj = resultJSONObj.getJSONObject("checks")
                     checkMarkJSON.add(!checksObj.getBoolean("face")) //face
@@ -283,7 +284,7 @@ class ScanActivity : AppCompatActivity() {
                         val dangerLabels = resultJSONObj.getJSONArray("danger_labels")
                         Log.d("[LOG] - DEBUG", "danger_labels -> %s".format(dangerLabels.toString()))
                         if (dangerLabels.length() >= 10) {
-                            chart.data = BarData(
+                            chart.data = barData(
                                 dangerLabels.getJSONObject(0).getInt("value").toFloat(),
                                 dangerLabels.getJSONObject(1).getInt("value").toFloat(),
                                 dangerLabels.getJSONObject(2).getInt("value").toFloat(),
@@ -293,8 +294,9 @@ class ScanActivity : AppCompatActivity() {
                                 dangerLabels.getJSONObject(6).getInt("value").toFloat(),
                                 dangerLabels.getJSONObject(7).getInt("value").toFloat(),
                                 dangerLabels.getJSONObject(8).getInt("value").toFloat(),
-                                dangerLabels.getJSONObject(9).getInt("value").toFloat())
-                            setupBarchart(
+                                dangerLabels.getJSONObject(9).getInt("value").toFloat(),
+                                0.0f)
+                            setupbarchart(
                                 dangerLabels.getJSONObject(0).getString("label"),
                                 dangerLabels.getJSONObject(1).getString("label"),
                                 dangerLabels.getJSONObject(2).getString("label"),
@@ -304,7 +306,9 @@ class ScanActivity : AppCompatActivity() {
                                 dangerLabels.getJSONObject(6).getString("label"),
                                 dangerLabels.getJSONObject(7).getString("label"),
                                 dangerLabels.getJSONObject(8).getString("label"),
-                                dangerLabels.getJSONObject(9).getString("label"))
+                                dangerLabels.getJSONObject(9).getString("label"),
+                                "",
+                                dangerLabels.getJSONObject(0).getInt("value").toFloat() * 1.5f)
                         }
                     }
 
@@ -337,7 +341,8 @@ class ScanActivity : AppCompatActivity() {
         }.start()
     }
 
-    private fun BarData(item10: Float,
+    private fun barData(item11: Float,
+                        item10: Float,
                         item9: Float,
                         item8: Float,
                         item7: Float,
@@ -358,6 +363,7 @@ class ScanActivity : AppCompatActivity() {
         values.add(BarEntry(7f,item8))
         values.add(BarEntry(8f,item9))
         values.add(BarEntry(9f,item10))
+        values.add(BarEntry(10f, item11))
 
 
 
@@ -366,6 +372,7 @@ class ScanActivity : AppCompatActivity() {
             axisDependency = YAxis.AxisDependency.RIGHT
             setDrawIcons(false)
             setDrawValues(true)
+            setValues(values)
             valueTextSize = 12f
         }
 
@@ -374,7 +381,8 @@ class ScanActivity : AppCompatActivity() {
         return data
     }
 
-    private fun setupBarchart(label_10:String,
+    private fun setupbarchart(label_11:String,
+                              label_10:String,
                               label_9:String,
                               label_8:String,
                               label_7:String,
@@ -383,8 +391,9 @@ class ScanActivity : AppCompatActivity() {
                               label_4:String,
                               label_3:String,
                               label_2:String,
-                              label_1:String){
-        val xAxisValue = ArrayList<String>()
+                              label_1:String,
+                              maxRange: Float){
+        val xAxisValue = mutableListOf<String>()
         xAxisValue.add(label_1)
         xAxisValue.add(label_2)
         xAxisValue.add(label_3)
@@ -395,25 +404,24 @@ class ScanActivity : AppCompatActivity() {
         xAxisValue.add(label_8)
         xAxisValue.add(label_9)
         xAxisValue.add(label_10)
+        xAxisValue.add(label_11)
 
         chart.apply {
             description.isEnabled = false
-//            description.textSize = 0f
+            description.textSize = 0f
 //            LargeValueFormatter()
-            setFitBars(true)
-//            fitsSystemWindows = true
+            xAxis.axisMinimum = 0f
+            xAxis.axisMaximum = 11f
 
             // ここのmaxYRangeの値を適度に変更すること！
-            setVisibleYRange(0f, 800f ,YAxis.AxisDependency.RIGHT)
+            setVisibleYRange(0f, maxRange ,YAxis.AxisDependency.LEFT)
 
-
-//            data.isHighlightEnabled = false
+            data.isHighlightEnabled = false
             invalidate()
             isScaleXEnabled = false
             setPinchZoom(false)
             setDrawGridBackground(false)
-            setDrawValueAboveBar(true)
-
+            setDrawValueAboveBar(false) // グラフの数値を入れるか(false)入れないか(true)
 
             legend.apply{
                 isEnabled = false
@@ -425,18 +433,29 @@ class ScanActivity : AppCompatActivity() {
                 setDrawGridLines(false)
                 setDrawLabels(true)
                 textSize = 12f
+
                 position = XAxis.XAxisPosition.TOP_INSIDE
                 valueFormatter = IndexAxisValueFormatter(xAxisValue)
-                spaceMin  = 5f
-                spaceMax = 5f
+
+                setLabelCount(11)
+                mAxisMinimum = 0f
+                mAxisMaximum = 11f
+//                mAxisRange = 12f
+                setCenterAxisLabels(false)
+                setAvoidFirstLastClipping(true)
+                spaceMin  = 4f
+                spaceMax = 4f
             }
 
             axisRight.isEnabled = false
             setScaleEnabled(false)
+            axisRight.setDrawZeroLine(true)
 
             axisLeft.apply {
+//                LargeValueFormatter()
                 setDrawGridLines(true)
-                setDrawZeroLine(true)
+//                spaceTop = 1f
+                axisMinimum = 0f
             }
         }
     }
