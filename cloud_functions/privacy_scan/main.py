@@ -203,6 +203,7 @@ def privacy_scan(request):
             for label_info in img_ann['labelAnnotations']:
                 if label_info["score"] < 0.5:
                     continue
+                
                 desc = label_info["description"]
                 if desc == "Selfie":
                     # 自撮り
@@ -349,27 +350,31 @@ def privacy_scan(request):
                             # TODO 人工物検出
                             advice_text_flags.append("ART")
                             detected_tag_dict['text'] = True
+                            advice_list.append(["人工物", "「%s」が写っています。個人特定に利用される可能性があります。"%(char_info[0])])
                         elif "ORG" in char_info:
                             # TODO 組織名検出
                             advice_text_flags.append("ORG")
                             detected_tag_dict['text'] = True
+                            advice_list.append(["組織名", "「%s」が写っています。個人特定に利用される可能性があります。"%(char_info[0])])
                         elif "LOC" in char_info:
                             # TODO 場所情報
                             advice_text_flags.append("LOC")
                             detected_tag_dict['text'] = True
+                            advice_list.append(["場所", "「%s」が写っています。場所が特定されないように注意しましょう。"%(char_info[0])])
                         elif "PSN" in char_info:
                             # TODO 人物名検出
                             advice_text_flags.append("PSN")
                             detected_tag_dict['text'] = True
+                            advice_list.append(["名前", "人物名「%s」が写っていま。名前がバレていないか確認しましょう。"%(char_info[0])])
                     # advice_text = ""
-                    if "ART" in advice_text_flags:
-                        advice_list.append(["人工物", "文字に人工物が含まれています"])
-                    if "ORG" in advice_text_flags:
-                        advice_list.append(["組織名", "文字に組織名が含まれています"])
-                    if "LOC" in advice_text_flags:
-                        advice_list.append(["場所", "場所を特定できる文字が写っています"])
-                    if "PSN" in advice_text_flags:
-                        advice_list.append(["名前", "人名が写っています"])
+                    # if "ART" in advice_text_flags:
+                    #     advice_list.append(["人工物", "文字に人工物が含まれています"])
+                    # if "ORG" in advice_text_flags:
+                    #     advice_list.append(["組織名", "文字に組織名が含まれています"])
+                    # if "LOC" in advice_text_flags:
+                    #     advice_list.append(["場所", "場所を特定できる文字が写っています"])
+                    # if "PSN" in advice_text_flags:
+                    #     advice_list.append(["名前", "人名が写っています"])
                     # advice_list.append(["text", advice_text])
                 else:
                     text_point = text_info['boundingPoly']['vertices']
@@ -403,8 +408,9 @@ def privacy_scan(request):
         statistics_dict = db_json['statistics']
         statistics_dict = statistics_update(statistics_dict, detected_tag_dict)
 
-        # ラベル学習用データ更新
-        savings_labels = update_savings_labels(savings_labels, labels=statistics_labels)
+        if True in list(detected_tag_dict.values()):
+            # ラベル学習用データ更新
+            savings_labels = update_savings_labels(savings_labels, labels=statistics_labels)
 
 
         # 統計データアップロード
@@ -429,6 +435,8 @@ def privacy_scan(request):
         if detected_tag_dict['pupil']:
             advice_list.append(['瞳', '瞳に映る景色から住所を特定されるかもしれません'])
 
+        if len(advice_list) == 0:
+            advice_list.append(["検出なし", "この画像に危険性は見つかりませんでした"])
 
         # レスポンスデータ作成
         result, img_bytes = cv2.imencode('.jpg', img)

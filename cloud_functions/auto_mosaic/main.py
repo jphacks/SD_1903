@@ -70,12 +70,6 @@ def mosaic_dsize(img, scale=0.1):
     mosaiced = cv2.resize(mosaiced, dsize=(w, h), interpolation=cv2.INTER_NEAREST)
     return mosaiced
 
-# スタンプ処理
-def stamp_replace(img, stamp):
-    h, w = img.shape[:2]
-    stamp = cv2.resize(stamp, dsize=(w, h), interpolation=cv2.INTER_NEAREST)
-    return stamp
-
 # 統計データ更新
 def statistics_update(statistics, data):
     # 統計データ更新
@@ -129,6 +123,20 @@ def update_savings_labels(savings, labels):
         savings[label] = savings[label]+1 if label in savings else 1
 
     return savings
+
+def mosaic_gaussianBlur(img):
+    if (not img.size > 0 or img is None):
+        return img
+    kernel = img.shape[0] if img.shape[0] > img.shape[1] else img.shape[1]
+    kernel = kernel if kernel % 2 == 1 else kernel + 1
+    img = cv2.GaussianBlur(img, (kernel, kernel), 0)
+    return img
+
+# スタンプ処理
+def stamp_replace(img, stamp):
+    h, w = img.shape[:2]
+    stamp = cv2.resize(stamp, dsize=(w, h), interpolation=cv2.INTER_NEAREST)
+    return stamp
 
 
 
@@ -391,14 +399,14 @@ def auto_mosaic(request):
                             advice_text_flags.append("PSN")
                             detected_tag_dict['text'] = True
                     # advice_text = ""
-                    if "ART" in advice_text_flags:
-                        advice_list.append(["人工物", "文字に人工物が含まれています"])
-                    if "ORG" in advice_text_flags:
-                        advice_list.append(["組織名", "文字に組織名が含まれています"])
-                    if "LOC" in advice_text_flags:
-                        advice_list.append(["場所", "場所を特定できる文字が写っています"])
-                    if "PSN" in advice_text_flags:
-                        advice_list.append(["名前", "人名が写っています"])
+                    # if "ART" in advice_text_flags:
+                    #     advice_list.append(["人工物", "文字に人工物が含まれています"])
+                    # if "ORG" in advice_text_flags:
+                    #     advice_list.append(["組織名", "文字に組織名が含まれています"])
+                    # if "LOC" in advice_text_flags:
+                    #     advice_list.append(["場所", "場所を特定できる文字が写っています"])
+                    # if "PSN" in advice_text_flags:
+                    #     advice_list.append(["名前", "人名が写っています"])
                     # advice_list.append(["text", advice_text])
                 else:
                     text_point = text_info['boundingPoly']['vertices']
@@ -432,8 +440,9 @@ def auto_mosaic(request):
         statistics_dict = db_json['statistics']
         statistics_dict = statistics_update(statistics_dict, detected_tag_dict)
 
-        # ラベル学習用データ更新
-        savings_labels = update_savings_labels(savings_labels, labels=statistics_labels)
+        if True in list(detected_tag_dict.values()):
+            # ラベル学習用データ更新
+            savings_labels = update_savings_labels(savings_labels, labels=statistics_labels)
 
 
         # 統計データアップロード
@@ -475,9 +484,11 @@ def auto_mosaic(request):
             # モザイク処理
             if name == 'face':
                 if end_y - top_y > 100 and end_x - top_x > 100:
-                    img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.1)
+                    # img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.1)
+                    img[top_y: end_y, top_x: end_x] = mosaic_gaussianBlur(img[top_y: end_y, top_x: end_x])
                 else:
-                    img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.1)
+                    # img[top_y: end_y, top_x: end_x] = mosaic(img[top_y: end_y, top_x: end_x], scale=0.1)
+                    img[top_y: end_y, top_x: end_x] = mosaic_gaussianBlur(img[top_y: end_y, top_x: end_x])
 
                 # stamped_img[top_y: end_y, top_x: end_x] = stamp_replace(stamped_img[top_y: end_y, top_x: end_x], stamp)
 
@@ -487,11 +498,15 @@ def auto_mosaic(request):
 
             if name == 'text':
                 if end_y - top_y <= 50 and end_x - top_x <= 50:
-                    img[top_y: end_y, top_x: end_x] = mosaic_dsize(img[top_y: end_y, top_x: end_x], scale=0.2)
+                    # img[top_y: end_y, top_x: end_x] = mosaic_dsize(img[top_y: end_y, top_x: end_x], scale=0.2)
+                    img[top_y: end_y, top_x: end_x] = mosaic_gaussianBlur(img[top_y: end_y, top_x: end_x])
                     # stamped_img[top_y: end_y, top_x: end_x] = mosaic_dsize(stamped_img[top_y: end_y, top_x: end_x], scale=0.2)
+                    # stamped_img[top_y: end_y, top_x: end_x] = mosaic_gaussianBlur(stamped_img[top_y: end_y, top_x: end_x])
                 else:
-                    img[top_y: end_y, top_x: end_x] = mosaic_dsize(img[top_y: end_y, top_x: end_x], scale=0.1)
+                    img[top_y: end_y, top_x: end_x] = mosaic_gaussianBlur(img[top_y: end_y, top_x: end_x])
+                    # img[top_y: end_y, top_x: end_x] = mosaic_dsize(img[top_y: end_y, top_x: end_x], scale=0.1)
                     # stamped_img[top_y: end_y, top_x: end_x] = mosaic_dsize(stamped_img[top_y: end_y, top_x: end_x], scale=0.1)
+                    # stamped_img[top_y: end_y, top_x: end_x] = mosaic_gaussianBlur(stamped_img[top_y: end_y, top_x: end_x])
 
         # ndarrayをエンコード
         result, img_bytes = cv2.imencode('.jpg', img)

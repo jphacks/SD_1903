@@ -69,6 +69,9 @@ class ScanJobService(): JobService() {
                         val file = File(presentPath)
                         val uri = Uri.fromFile(file)
                         var bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
+                        if (bitmap == null) {
+                            return async_flag
+                        }
                         bitmap = resizeBitmap(bitmap)
 
                         val byteBuffer = ByteArrayOutputStream()

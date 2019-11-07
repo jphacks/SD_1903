@@ -65,6 +65,7 @@ class ScanActivity : AppCompatActivity() {
         detectionView = findViewById(R.id.detectionView)
         addMosaicButton = findViewById(R.id.addMosaicButton)
         addMosaicButton.isEnabled = false
+        addMosaicButton.tag = ScanFlag.DANGER
         progressBar = this.findViewById(R.id.scanProgressBar)
         progressBar.isVisible = false
         adviceListView = findViewById(R.id.adviceListView)
@@ -197,9 +198,13 @@ class ScanActivity : AppCompatActivity() {
     private fun enableMosaicButton(putStr: String) {
         addMosaicButton.isEnabled = true
         addMosaicButton.setOnClickListener {
-            val intent = Intent(this, MosaicActivity::class.java)
-            intent.putExtra("mosaic_points", putStr)
-            startActivityForResult(intent, ADD_MOSAIC_INTENT)
+            if ((addMosaicButton.tag as ScanFlag) == ScanFlag.DANGER) {
+                val intent = Intent(this, MosaicActivity::class.java)
+                intent.putExtra("mosaic_points", putStr)
+                startActivityForResult(intent, ADD_MOSAIC_INTENT)
+            } else if ((addMosaicButton.tag as ScanFlag) == ScanFlag.SAFE) {
+                finish()
+            }
         }
     }
 
@@ -258,6 +263,14 @@ class ScanActivity : AppCompatActivity() {
                     checkMarkJSON.add(!checksObj.getBoolean("finger")) //hand
                     checkMarkJSON.add(!checksObj.getBoolean("text")) //char
                     checkMarkJSON.add(!checksObj.getBoolean("landmark"))//landmark
+
+                    // 全てのチェックがOKなら、GOOD!
+                    if (!checksObj.getBoolean("face") && !checksObj.getBoolean("pupil") && !checksObj.getBoolean("finger") && !checksObj.getBoolean("text") && !checksObj.getBoolean("landmark")) {
+                        addMosaicButton.tag = ScanFlag.SAFE
+                        addMosaicButton.text = "TOPへ"
+                    } else {
+                        addMosaicButton.tag = ScanFlag.DANGER
+                    }
                 }
 
 
@@ -397,5 +410,10 @@ class ScanActivity : AppCompatActivity() {
 //                setVisibleXRange(0f,2f)
             }
         }
+    }
+
+
+    enum class ScanFlag {
+        SAFE, DANGER
     }
 }
