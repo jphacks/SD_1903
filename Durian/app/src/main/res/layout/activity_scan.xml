@@ -186,8 +186,8 @@
             <com.github.mikephil.charting.charts.HorizontalBarChart
                 android:id="@+id/chart"
                 android:layout_width="match_parent"
-                android:layout_height="800dp"
-                android:layout_marginLeft="0dp">
+                android:layout_height="650dp"
+                android:layout_marginLeft="20dp">
 
             </com.github.mikephil.charting.charts.HorizontalBarChart>
 
