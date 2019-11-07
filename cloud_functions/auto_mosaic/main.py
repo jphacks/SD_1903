@@ -279,7 +279,7 @@ def auto_mosaic(request):
             tmp_face_points_list =[]
             tmp_left_pupil_points_list = []
             tmp_right_pupil_points_list = []  
-            max_size = 0
+            face_max_size = 0
 
             # 顔の座標を取得
             for face_info in img_ann['faceAnnotations']:
@@ -301,8 +301,8 @@ def auto_mosaic(request):
                 })
             
                 # 顔の最大サイズを決める
-                if (size > max_size):
-                    max_size = size
+                if (size > face_max_size):
+                    face_max_size = size
 
                 # 目の座標も取得
                 landmarks = face_info['landmarks']
@@ -354,14 +354,14 @@ def auto_mosaic(request):
                 })
 
             for i, tmp_face_point in enumerate(tmp_face_points_list):
-                if (max_size * 0.5 > float(tmp_face_point['size']) or img.shape[0]*img.shape[1] / 100 > float(tmp_face_point['size'])):
+                if (float(tmp_face_point['size']) < face_max_size*0.5 or float(tmp_face_point['size']) < img.shape[0]*img.shape[1] / 100):
                     # 最大の顔サイズの0.5 倍より小さければモザイク対象 || 画像の1/100のサイズもない場合 
                     del tmp_face_point['size']
                     return_mosaic_list.append(tmp_face_point)
                     detected_tag_dict['face'] = True
                 else:
                     # 顔は対象外だが、自撮りの場合は瞳にモザイク（かつ、顔のサイズが画像の1/2以上）
-                    if 'Selfie' in checked_labels and img.shape[0]*img.shape[1] / 2 > float(tmp_face_point['size']):
+                    if 'Selfie' in checked_labels and float(tmp_face_point['size'] > img.shape[0]*img.shape[1] / 2):
                         return_mosaic_list.append(tmp_left_pupil_points_list[i])
                         return_mosaic_list.append(tmp_right_pupil_points_list[i])
                         detected_tag_dict['pupil'] = True
