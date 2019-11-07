@@ -189,20 +189,23 @@ def privacy_scan(request):
         res_json = response.json()["responses"]
         img_ann = res_json[0]
 
-        # 危険度が高いラベルリスト
-        danger_labels = get_savings_labels()
 
         # 確認されたラベルリスト
         checked_labels = []
-        # 危険度が高いラベルと一致したラベルリスト
-        result_danger_labels = {}
         # 統計ラベルリスト
         statistics_labels = []
+
+        # 危険度が高いラベルリスト
+        danger_labels = get_savings_labels()
+        # 危険度が高いラベルと一致したラベルリスト
+        result_danger_labels = []
+
         # ラベル解析
         if 'labelAnnotations' in img_ann:
             for label_info in img_ann['labelAnnotations']:
                 if label_info["score"] < 0.5:
                     continue
+                
                 desc = label_info["description"]
                 if desc == "Selfie":
                     # 自撮り
@@ -226,23 +229,29 @@ def privacy_scan(request):
                     # ラベル追加    
                     statistics_labels.append(desc)
 
-            # 危険性が高いラベルが含まれているかチェック
-            if danger_labels is not None:
-                top_danger_labels = list(danger_labels["label"])
-                top_danger_values = list(danger_labels["value"])
-                for label, value in zip(top_danger_labels, top_danger_values):
-                    if label in statistics_labels:
-                        result_danger_labels[label] = {
-                            "check": label in statistics_labels,
-                            "value": value
-                        }
+        # 危険性が高いラベルが含まれているかチェック
+        if danger_labels is not None:
+            top_danger_labels = list(danger_labels["label"])
+            top_danger_values = list(danger_labels["value"])
+            for label, value in zip(top_danger_labels, top_danger_values):
+                result_danger_labels.append({
+                    "label": label,
+                    "check": label in statistics_labels,
+                    "value": value
+                })
+        else:
+            result_danger_labels.append({
+                "label": "None",
+                "check": False,
+                "value": 100
+            })
 
         if 'faceAnnotations' in img_ann:
             # 顔検出に引っかかったら統計データ更新
             tmp_face_points_list =[]
             tmp_left_pupil_points_list = []
             tmp_right_pupil_points_list = []  
-            max_size = 0
+            face_max_size = 0
 
             # 顔の座標を取得
             for face_info in img_ann['faceAnnotations']:
@@ -258,14 +267,14 @@ def privacy_scan(request):
                     "top_y": top_y,
                     "end_x": end_x,
                     "end_y": end_y,
-                    "width": 10,
+                    "width": 5,
                     "color": (0, 0, 255),
                     "size": size
                 })
             
                 # 顔の最大サイズを決める
-                if (size > max_size):
-                    max_size = size
+                if (size > face_max_size):
+                    face_max_size = size
 
                 # 目の座標も取得
                 landmarks = face_info['landmarks']
@@ -313,18 +322,18 @@ def privacy_scan(request):
                     "end_x": r_eye_end_x,
                     "end_y": r_eye_end_y,
                     "width": 2,
-                    "color": (57, 108, 236)
+                    "color": (49, 48, 214)
                 })
 
             for i, tmp_face_point in enumerate(tmp_face_points_list):
-                if (max_size * 0.5 > float(tmp_face_point['size']) or img.shape[0]*img.shape[1] / 100 > float(tmp_face_point['size'])):
+                if (float(tmp_face_point['size']) < face_max_size*0.5 or float(tmp_face_point['size']) < img.shape[0]*img.shape[1]/200):
                     # 最大の顔サイズの0.5 倍より小さければモザイク対象 || 画像の1/100のサイズもない場合 
                     del tmp_face_point['size']
                     return_mosaic_list.append(tmp_face_point)
                     detected_tag_dict['face'] = True
                 else:
                     # 顔は対象外だが、自撮りの場合は瞳にモザイク（かつ、顔のサイズが画像の1/2以上）
-                    if 'Selfie' in checked_labels and img.shape[0]*img.shape[1] / 2 > float(tmp_face_point['size']):
+                    if 'Selfie' in checked_labels and float(tmp_face_point['size'] > img.shape[0]*img.shape[1] / 2):
                         return_mosaic_list.append(tmp_left_pupil_points_list[i])
                         return_mosaic_list.append(tmp_right_pupil_points_list[i])
                         detected_tag_dict['pupil'] = True
@@ -349,27 +358,31 @@ def privacy_scan(request):
                             # TODO 人工物検出
                             advice_text_flags.append("ART")
                             detected_tag_dict['text'] = True
+                            advice_list.append(["人工物", "「%s」が写っています。個人特定に利用される可能性があります。"%(char_info[0])])
                         elif "ORG" in char_info:
                             # TODO 組織名検出
                             advice_text_flags.append("ORG")
                             detected_tag_dict['text'] = True
+                            advice_list.append(["組織名", "「%s」が写っています。個人特定に利用される可能性があります。"%(char_info[0])])
                         elif "LOC" in char_info:
                             # TODO 場所情報
                             advice_text_flags.append("LOC")
                             detected_tag_dict['text'] = True
+                            advice_list.append(["場所", "「%s」が写っています。場所が特定されないように注意しましょう。"%(char_info[0])])
                         elif "PSN" in char_info:
                             # TODO 人物名検出
                             advice_text_flags.append("PSN")
                             detected_tag_dict['text'] = True
+                            advice_list.append(["名前", "人物名「%s」が写っていま。名前がバレていないか確認しましょう。"%(char_info[0])])
                     # advice_text = ""
-                    if "ART" in advice_text_flags:
-                        advice_list.append(["人工物", "文字に人工物が含まれています"])
-                    if "ORG" in advice_text_flags:
-                        advice_list.append(["組織名", "文字に組織名が含まれています"])
-                    if "LOC" in advice_text_flags:
-                        advice_list.append(["場所", "場所を特定できる文字が写っています"])
-                    if "PSN" in advice_text_flags:
-                        advice_list.append(["名前", "人名が写っています"])
+                    # if "ART" in advice_text_flags:
+                    #     advice_list.append(["人工物", "文字に人工物が含まれています"])
+                    # if "ORG" in advice_text_flags:
+                    #     advice_list.append(["組織名", "文字に組織名が含まれています"])
+                    # if "LOC" in advice_text_flags:
+                    #     advice_list.append(["場所", "場所を特定できる文字が写っています"])
+                    # if "PSN" in advice_text_flags:
+                    #     advice_list.append(["名前", "人名が写っています"])
                     # advice_list.append(["text", advice_text])
                 else:
                     text_point = text_info['boundingPoly']['vertices']
@@ -393,7 +406,7 @@ def privacy_scan(request):
             for landmark in landmarks_ann[:1]:
                 desc = landmark['description']
                 location = (landmark['locations'][0]['latLng']['latitude'], landmark['locations'][0]['latLng']['longitude'])
-            advice_list.append(["Landmark", "写真の場所は緯度%f 経度%f" % (location[0], location[1])])
+            advice_list.append(["住所", "写真の場所は%sと判断されました。\n緯度%f 経度%f" % (desc, location[0], location[1])])
 
 # ----------------------------------
 
@@ -403,8 +416,9 @@ def privacy_scan(request):
         statistics_dict = db_json['statistics']
         statistics_dict = statistics_update(statistics_dict, detected_tag_dict)
 
-        # ラベル学習用データ更新
-        savings_labels = update_savings_labels(savings_labels, labels=statistics_labels)
+        if True in list(detected_tag_dict.values()):
+            # ラベル学習用データ更新
+            savings_labels = update_savings_labels(savings_labels, labels=statistics_labels)
 
 
         # 統計データアップロード
@@ -425,10 +439,20 @@ def privacy_scan(request):
 
         # アドバイス構文最終構築
         if detected_tag_dict['face']:
-            advice_list.append(["顔","背景に人の顔があります。加工しましょう"])
+            advice_list.append(["顔","第三者が写っています。ネットにあげる時は隠しておきましょう。"])
         if detected_tag_dict['pupil']:
             advice_list.append(['瞳', '瞳に映る景色から住所を特定されるかもしれません'])
 
+        if len(advice_list) == 0:
+            advice_list.append(["検出なし", "この画像に危険性は見つかりませんでした"])
+
+        # 危険度（高）のラベル整理
+        if len(result_danger_labels) <= 0:
+            result_danger_labels.append({
+                "label": "Label Not Found.",
+                "check": False,
+                "value": 200
+            })
 
         # レスポンスデータ作成
         result, img_bytes = cv2.imencode('.jpg', img)

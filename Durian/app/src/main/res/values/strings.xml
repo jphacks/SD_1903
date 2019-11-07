@@ -10,7 +10,7 @@
     <string name="save_btn_text">保存する</string>
     <string name="nosave_btn_text">保存しない</string>
     <string name="top_description">Detect your information and negligence</string>
-    <string name="scan_advice_label">ユーザー全体の検出数</string>
+    <string name="scan_advice_label">危険な画像の種類</string>
     <string name="scan_result_label">Result</string>
     <string name="mosaic_Button">加工する</string>
     <string name="tabButton_1_text">モザイク</string>

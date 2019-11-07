@@ -66,6 +66,7 @@ class ScanActivity : AppCompatActivity() {
         detectionView = findViewById(R.id.detectionView)
         addMosaicButton = findViewById(R.id.addMosaicButton)
         addMosaicButton.isEnabled = false
+        addMosaicButton.tag = ScanFlag.DANGER
         progressBar = this.findViewById(R.id.scanProgressBar)
         progressBar.isVisible = false
         adviceListView = findViewById(R.id.adviceListView)
@@ -198,9 +199,13 @@ class ScanActivity : AppCompatActivity() {
     private fun enableMosaicButton(putStr: String) {
         addMosaicButton.isEnabled = true
         addMosaicButton.setOnClickListener {
-            val intent = Intent(this, MosaicActivity::class.java)
-            intent.putExtra("mosaic_points", putStr)
-            startActivityForResult(intent, ADD_MOSAIC_INTENT)
+            if ((addMosaicButton.tag as ScanFlag) == ScanFlag.DANGER) {
+                val intent = Intent(this, MosaicActivity::class.java)
+                intent.putExtra("mosaic_points", putStr)
+                startActivityForResult(intent, ADD_MOSAIC_INTENT)
+            } else if ((addMosaicButton.tag as ScanFlag) == ScanFlag.SAFE) {
+                finish()
+            }
         }
     }
 
@@ -250,8 +255,7 @@ class ScanActivity : AppCompatActivity() {
 //                        statisticsObj.getInt("text").toFloat(),
 //                        statisticsObj.getInt("landmark").toFloat())
 //                }
-                chart.data = barData(500f,450f,400f,350f,300f,250f,200f,150f,100f,50f , 0f)
-                setupbarchart("Aa","Ba","Ca","Da","Ea","Fa","Ga","Ha","Ia","Ja","")
+
 
                 if (resultJSONObj.has("checks")) {
                     val checksObj = resultJSONObj.getJSONObject("checks")
@@ -260,6 +264,14 @@ class ScanActivity : AppCompatActivity() {
                     checkMarkJSON.add(!checksObj.getBoolean("finger")) //hand
                     checkMarkJSON.add(!checksObj.getBoolean("text")) //char
                     checkMarkJSON.add(!checksObj.getBoolean("landmark"))//landmark
+
+                    // 全てのチェックがOKなら、GOOD!
+                    if (!checksObj.getBoolean("face") && !checksObj.getBoolean("pupil") && !checksObj.getBoolean("finger") && !checksObj.getBoolean("text") && !checksObj.getBoolean("landmark")) {
+                        addMosaicButton.tag = ScanFlag.SAFE
+                        addMosaicButton.text = "TOPへ"
+                    } else {
+                        addMosaicButton.tag = ScanFlag.DANGER
+                    }
                 }
 
 
@@ -269,7 +281,35 @@ class ScanActivity : AppCompatActivity() {
                     }
 
                     if (resultJSONObj.has("danger_labels")) {
-                        Log.d("[LOG] - DEBUG", "danger_labels : %s".format(resultJSONObj.getJSONObject("danger_labels").toString()))
+                        val dangerLabels = resultJSONObj.getJSONArray("danger_labels")
+                        Log.d("[LOG] - DEBUG", "danger_labels -> %s".format(dangerLabels.toString()))
+                        if (dangerLabels.length() >= 10) {
+                            chart.data = barData(
+                                dangerLabels.getJSONObject(0).getInt("value").toFloat(),
+                                dangerLabels.getJSONObject(1).getInt("value").toFloat(),
+                                dangerLabels.getJSONObject(2).getInt("value").toFloat(),
+                                dangerLabels.getJSONObject(3).getInt("value").toFloat(),
+                                dangerLabels.getJSONObject(4).getInt("value").toFloat(),
+                                dangerLabels.getJSONObject(5).getInt("value").toFloat(),
+                                dangerLabels.getJSONObject(6).getInt("value").toFloat(),
+                                dangerLabels.getJSONObject(7).getInt("value").toFloat(),
+                                dangerLabels.getJSONObject(8).getInt("value").toFloat(),
+                                dangerLabels.getJSONObject(9).getInt("value").toFloat(),
+                                0.0f)
+                            setupbarchart(
+                                dangerLabels.getJSONObject(0).getString("label"),
+                                dangerLabels.getJSONObject(1).getString("label"),
+                                dangerLabels.getJSONObject(2).getString("label"),
+                                dangerLabels.getJSONObject(3).getString("label"),
+                                dangerLabels.getJSONObject(4).getString("label"),
+                                dangerLabels.getJSONObject(5).getString("label"),
+                                dangerLabels.getJSONObject(6).getString("label"),
+                                dangerLabels.getJSONObject(7).getString("label"),
+                                dangerLabels.getJSONObject(8).getString("label"),
+                                dangerLabels.getJSONObject(9).getString("label"),
+                                "",
+                                dangerLabels.getJSONObject(0).getInt("value").toFloat() * 1.5f)
+                        }
                     }
 
                     enableMosaicButton(resultJSONObj.getJSONArray("mosaic_points").toString())
@@ -351,7 +391,8 @@ class ScanActivity : AppCompatActivity() {
                               label_4:String,
                               label_3:String,
                               label_2:String,
-                              label_1:String){
+                              label_1:String,
+                              maxRange: Float){
         val xAxisValue = mutableListOf<String>()
         xAxisValue.add(label_1)
         xAxisValue.add(label_2)
@@ -373,15 +414,14 @@ class ScanActivity : AppCompatActivity() {
             xAxis.axisMaximum = 11f
 
             // ここのmaxYRangeの値を適度に変更すること！
-            setVisibleYRange(0f, 700f ,YAxis.AxisDependency.LEFT)
+            setVisibleYRange(0f, maxRange ,YAxis.AxisDependency.LEFT)
 
             data.isHighlightEnabled = false
             invalidate()
             isScaleXEnabled = false
             setPinchZoom(false)
             setDrawGridBackground(false)
-            setDrawValueAboveBar(true)
-
+            setDrawValueAboveBar(false) // グラフの数値を入れるか(false)入れないか(true)
 
             legend.apply{
                 isEnabled = false
@@ -394,7 +434,7 @@ class ScanActivity : AppCompatActivity() {
                 setDrawLabels(true)
                 textSize = 12f
 
-                position = XAxis.XAxisPosition.BOTTOM_INSIDE
+                position = XAxis.XAxisPosition.TOP_INSIDE
                 valueFormatter = IndexAxisValueFormatter(xAxisValue)
 
                 setLabelCount(11)
@@ -418,5 +458,10 @@ class ScanActivity : AppCompatActivity() {
                 axisMinimum = 0f
             }
         }
+    }
+
+
+    enum class ScanFlag {
+        SAFE, DANGER
     }
 }
