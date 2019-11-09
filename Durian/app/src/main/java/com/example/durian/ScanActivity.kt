@@ -25,22 +25,19 @@ import java.util.*
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.AnimatedVectorDrawable
-import android.view.View
 import android.widget.*
-import androidx.core.view.setPadding
-import com.github.mikephil.charting.charts.BarChart
-import com.github.mikephil.charting.components.Legend
-import com.github.mikephil.charting.components.LegendEntry
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.durian.Adapter.AdviceAdapter
+import com.example.durian.Adapter.DetectLabelsAdapter
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
-import com.github.mikephil.charting.formatter.LargeValueFormatter
-import com.github.mikephil.charting.formatter.ValueFormatter
-import com.github.mikephil.charting.renderer.CandleStickChartRenderer
 import kotlinx.android.synthetic.main.activity_scan.*
+import org.json.JSONArray
 
 
 class ScanActivity : AppCompatActivity() {
@@ -49,6 +46,7 @@ class ScanActivity : AppCompatActivity() {
     private lateinit var addMosaicButton: Button
     private lateinit var progressBar: ProgressBar
     private lateinit var adviceListView: ListView
+    private lateinit var detectLabelsRecyclerView: RecyclerView
 
     private val CAMERA_INTENT = 1
     private val SELECTION_INTENT = 2
@@ -70,6 +68,7 @@ class ScanActivity : AppCompatActivity() {
         progressBar = this.findViewById(R.id.scanProgressBar)
         progressBar.isVisible = false
         adviceListView = findViewById(R.id.adviceListView)
+        detectLabelsRecyclerView = findViewById(R.id.detectLabelsRecyclerView)
 
         val toStr = intent.getStringExtra("to") ?: ""
         when (toStr) {
@@ -277,7 +276,10 @@ class ScanActivity : AppCompatActivity() {
 
                 handler.post {
                     if (resultJSONObj.has("advice")) {
-                        adviceListView.adapter = AdviceAdapter(this, resultJSONObj.getJSONArray("advice"))
+                        adviceListView.adapter = AdviceAdapter(
+                            this,
+                            resultJSONObj.getJSONArray("advice")
+                        )
                     }
 
                     if (resultJSONObj.has("danger_labels")) {
@@ -310,7 +312,32 @@ class ScanActivity : AppCompatActivity() {
                                 "",
                                 dangerLabels.getJSONObject(0).getInt("value").toFloat() * 1.5f)
                         }
+
+
+                        if (resultJSONObj.has("detect_labels")) {
+                            val detectLabels = resultJSONObj.getJSONArray("detect_labels")
+                            Log.d("[LOG] - DEBUG", "detect_labels -> %s".format(detectLabels.toString()))
+                            val detectLabelsAdapterList = JSONArray()
+                            for (labelIndex in 0 until detectLabels.length()) {
+                                val intoJsonObj = JSONObject()
+                                intoJsonObj.put("label", detectLabels.getString(labelIndex))
+                                var checkLabelFlag = false
+                                for (dangerIndex in 0 until dangerLabels.length()) {
+                                    if (dangerLabels.getJSONObject(dangerIndex).getBoolean("check") &&
+                                        dangerLabels.getJSONObject(dangerIndex).getString("label") == detectLabels.getString(labelIndex)) {
+                                        checkLabelFlag = true
+                                    }
+                                }
+                                intoJsonObj.put("check", checkLabelFlag)
+                                detectLabelsAdapterList.put(intoJsonObj)
+                            }
+
+                            detectLabelsRecyclerView.adapter = DetectLabelsAdapter(this, detectLabelsAdapterList)
+                            detectLabelsRecyclerView.layoutManager = GridLayoutManager(this, 4)
+                        }
                     }
+
+
 
                     enableMosaicButton(resultJSONObj.getJSONArray("mosaic_points").toString())
                     progressBar.isVisible = false

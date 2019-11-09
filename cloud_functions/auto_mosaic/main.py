@@ -259,6 +259,8 @@ def auto_mosaic(request):
                 elif desc == "School Uniform" or desc == "Uniform":
                     checked_labels.append("Uniform")
                     advice_list.append(["制服", "制服から写真の地域がバレる可能性があります"])
+                elif desc == "Photography":
+                    print("例外")
                 else:
                     # ラベル追加    
                     statistics_labels.append(desc)
