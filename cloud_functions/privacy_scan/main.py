@@ -225,6 +225,8 @@ def privacy_scan(request):
                 elif desc == "School Uniform" or desc == "Uniform":
                     checked_labels.append("Uniform")
                     advice_list.append(["制服", "制服から写真の地域がバレる可能性があります"])
+                elif desc == "Photography":
+                    print("例外")
                 else:
                     # ラベル追加    
                     statistics_labels.append(desc)
@@ -322,7 +324,7 @@ def privacy_scan(request):
                     "end_x": r_eye_end_x,
                     "end_y": r_eye_end_y,
                     "width": 2,
-                    "color": (49, 48, 214)
+                    "color": (57, 108, 236)
                 })
 
             for i, tmp_face_point in enumerate(tmp_face_points_list):
@@ -462,6 +464,7 @@ def privacy_scan(request):
             'checks': detected_tag_dict,
             'mosaic_points': return_mosaic_list,
             'danger_labels': result_danger_labels,
+            'detect_labels': statistics_labels,
             'advice': advice_list
         }
 

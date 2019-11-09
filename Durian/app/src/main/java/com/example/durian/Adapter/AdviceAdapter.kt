@@ -1,15 +1,13 @@
-package com.example.durian
+package com.example.durian.Adapter
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import android.widget.CheckBox
-import android.widget.ListView
 import android.widget.TextView
+import com.example.durian.R
 import org.json.JSONArray
-import org.json.JSONObject
 
 
 /*
