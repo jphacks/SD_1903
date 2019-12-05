@@ -335,7 +335,7 @@ def privacy_scan(request):
                     detected_tag_dict['face'] = True
                 else:
                     # 顔は対象外だが、自撮りの場合は瞳にモザイク（かつ、顔のサイズが画像の1/2以上）
-                    if 'Selfie' in checked_labels and float(tmp_face_point['size'] > img.shape[0]*img.shape[1] / 2):
+                    if 'Selfie' in checked_labels and float(tmp_face_point['size'] > img.shape[0]*img.shape[1] / 4):
                         return_mosaic_list.append(tmp_left_pupil_points_list[i])
                         return_mosaic_list.append(tmp_right_pupil_points_list[i])
                         detected_tag_dict['pupil'] = True
