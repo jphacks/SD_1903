@@ -195,6 +195,7 @@ class ScanActivity : AppCompatActivity() {
     }
 
 
+    // モザイク遷移ボタンを有効化
     private fun enableMosaicButton(putStr: String) {
         addMosaicButton.isEnabled = true
         addMosaicButton.setOnClickListener {
@@ -206,6 +207,11 @@ class ScanActivity : AppCompatActivity() {
                 finish()
             }
         }
+    }
+
+
+    private fun showSelectionButton(position: JSONObject) {
+
     }
 
     // アクティビティ終了メソッド
@@ -286,31 +292,31 @@ class ScanActivity : AppCompatActivity() {
                         val dangerLabels = resultJSONObj.getJSONArray("danger_labels")
                         Log.d("[LOG] - DEBUG", "danger_labels -> %s".format(dangerLabels.toString()))
                         if (dangerLabels.length() >= 10) {
-                            chart.data = barData(
-                                dangerLabels.getJSONObject(0).getInt("value").toFloat(),
-                                dangerLabels.getJSONObject(1).getInt("value").toFloat(),
-                                dangerLabels.getJSONObject(2).getInt("value").toFloat(),
-                                dangerLabels.getJSONObject(3).getInt("value").toFloat(),
-                                dangerLabels.getJSONObject(4).getInt("value").toFloat(),
-                                dangerLabels.getJSONObject(5).getInt("value").toFloat(),
-                                dangerLabels.getJSONObject(6).getInt("value").toFloat(),
-                                dangerLabels.getJSONObject(7).getInt("value").toFloat(),
-                                dangerLabels.getJSONObject(8).getInt("value").toFloat(),
-                                dangerLabels.getJSONObject(9).getInt("value").toFloat(),
-                                0.0f)
-                            setupbarchart(
-                                dangerLabels.getJSONObject(0).getString("label"),
-                                dangerLabels.getJSONObject(1).getString("label"),
-                                dangerLabels.getJSONObject(2).getString("label"),
-                                dangerLabels.getJSONObject(3).getString("label"),
-                                dangerLabels.getJSONObject(4).getString("label"),
-                                dangerLabels.getJSONObject(5).getString("label"),
-                                dangerLabels.getJSONObject(6).getString("label"),
-                                dangerLabels.getJSONObject(7).getString("label"),
-                                dangerLabels.getJSONObject(8).getString("label"),
-                                dangerLabels.getJSONObject(9).getString("label"),
-                                "",
-                                dangerLabels.getJSONObject(0).getInt("value").toFloat() * 1.5f)
+//                            chart.data = barData(
+//                                dangerLabels.getJSONObject(0).getInt("value").toFloat(),
+//                                dangerLabels.getJSONObject(1).getInt("value").toFloat(),
+//                                dangerLabels.getJSONObject(2).getInt("value").toFloat(),
+//                                dangerLabels.getJSONObject(3).getInt("value").toFloat(),
+//                                dangerLabels.getJSONObject(4).getInt("value").toFloat(),
+//                                dangerLabels.getJSONObject(5).getInt("value").toFloat(),
+//                                dangerLabels.getJSONObject(6).getInt("value").toFloat(),
+//                                dangerLabels.getJSONObject(7).getInt("value").toFloat(),
+//                                dangerLabels.getJSONObject(8).getInt("value").toFloat(),
+//                                dangerLabels.getJSONObject(9).getInt("value").toFloat(),
+//                                0.0f)
+//                            setupbarchart(
+//                                dangerLabels.getJSONObject(0).getString("label"),
+//                                dangerLabels.getJSONObject(1).getString("label"),
+//                                dangerLabels.getJSONObject(2).getString("label"),
+//                                dangerLabels.getJSONObject(3).getString("label"),
+//                                dangerLabels.getJSONObject(4).getString("label"),
+//                                dangerLabels.getJSONObject(5).getString("label"),
+//                                dangerLabels.getJSONObject(6).getString("label"),
+//                                dangerLabels.getJSONObject(7).getString("label"),
+//                                dangerLabels.getJSONObject(8).getString("label"),
+//                                dangerLabels.getJSONObject(9).getString("label"),
+//                                "",
+//                                dangerLabels.getJSONObject(0).getInt("value").toFloat() * 1.5f)
                         }
 
 
@@ -368,125 +374,125 @@ class ScanActivity : AppCompatActivity() {
         }.start()
     }
 
-    private fun barData(item11: Float,
-                        item10: Float,
-                        item9: Float,
-                        item8: Float,
-                        item7: Float,
-                        item6: Float,
-                        item5: Float,
-                        item4: Float,
-                        item3: Float,
-                        item2: Float,
-                        item1: Float): BarData {
-        val values = mutableListOf<BarEntry>()
-        values.add(BarEntry(0f,item1))
-        values.add(BarEntry(1f,item2))
-        values.add(BarEntry(2f,item3))
-        values.add(BarEntry(3f,item4))
-        values.add(BarEntry(4f,item5))
-        values.add(BarEntry(5f,item6))
-        values.add(BarEntry(6f,item7))
-        values.add(BarEntry(7f,item8))
-        values.add(BarEntry(8f,item9))
-        values.add(BarEntry(9f,item10))
-        values.add(BarEntry(10f, item11))
+//    private fun barData(item11: Float,
+//                        item10: Float,
+//                        item9: Float,
+//                        item8: Float,
+//                        item7: Float,
+//                        item6: Float,
+//                        item5: Float,
+//                        item4: Float,
+//                        item3: Float,
+//                        item2: Float,
+//                        item1: Float): BarData {
+//        val values = mutableListOf<BarEntry>()
+//        values.add(BarEntry(0f,item1))
+//        values.add(BarEntry(1f,item2))
+//        values.add(BarEntry(2f,item3))
+//        values.add(BarEntry(3f,item4))
+//        values.add(BarEntry(4f,item5))
+//        values.add(BarEntry(5f,item6))
+//        values.add(BarEntry(6f,item7))
+//        values.add(BarEntry(7f,item8))
+//        values.add(BarEntry(8f,item9))
+//        values.add(BarEntry(9f,item10))
+//        values.add(BarEntry(10f, item11))
+//
+//
+//
+//        val yVals = BarDataSet(values,"").apply {
+//            setColors(Color.GREEN)
+//            axisDependency = YAxis.AxisDependency.RIGHT
+//            setDrawIcons(false)
+//            setDrawValues(true)
+//            setValues(values)
+//            valueTextSize = 12f
+//        }
+//
+//        val data = BarData(yVals)
+//        data.barWidth = 0.7f
+//        return data
+//    }
 
-
-
-        val yVals = BarDataSet(values,"").apply {
-            setColors(Color.GREEN)
-            axisDependency = YAxis.AxisDependency.RIGHT
-            setDrawIcons(false)
-            setDrawValues(true)
-            setValues(values)
-            valueTextSize = 12f
-        }
-
-        val data = BarData(yVals)
-        data.barWidth = 0.7f
-        return data
-    }
-
-    private fun setupbarchart(label_11:String,
-                              label_10:String,
-                              label_9:String,
-                              label_8:String,
-                              label_7:String,
-                              label_6:String,
-                              label_5:String,
-                              label_4:String,
-                              label_3:String,
-                              label_2:String,
-                              label_1:String,
-                              maxRange: Float){
-        val xAxisValue = mutableListOf<String>()
-        xAxisValue.add(label_1)
-        xAxisValue.add(label_2)
-        xAxisValue.add(label_3)
-        xAxisValue.add(label_4)
-        xAxisValue.add(label_5)
-        xAxisValue.add(label_6)
-        xAxisValue.add(label_7)
-        xAxisValue.add(label_8)
-        xAxisValue.add(label_9)
-        xAxisValue.add(label_10)
-        xAxisValue.add(label_11)
-
-        chart.apply {
-            description.isEnabled = false
-            description.textSize = 0f
-//            LargeValueFormatter()
-            xAxis.axisMinimum = 0f
-            xAxis.axisMaximum = 11f
-
-            // ここのmaxYRangeの値を適度に変更すること！
-            setVisibleYRange(0f, maxRange ,YAxis.AxisDependency.LEFT)
-
-            data.isHighlightEnabled = false
-            invalidate()
-            isScaleXEnabled = false
-            setPinchZoom(false)
-            setDrawGridBackground(false)
-            setDrawValueAboveBar(false) // グラフの数値を入れるか(false)入れないか(true)
-
-            legend.apply{
-                isEnabled = false
-            }
-
-            xAxis.apply {
-                granularity = 1f
-                isGranularityEnabled = true
-                setDrawGridLines(false)
-                setDrawLabels(true)
-                textSize = 12f
-
-                position = XAxis.XAxisPosition.TOP_INSIDE
-                valueFormatter = IndexAxisValueFormatter(xAxisValue)
-
-                setLabelCount(11)
-                mAxisMinimum = 0f
-                mAxisMaximum = 11f
-//                mAxisRange = 12f
-                setCenterAxisLabels(false)
-                setAvoidFirstLastClipping(true)
-                spaceMin  = 4f
-                spaceMax = 4f
-            }
-
-            axisRight.isEnabled = false
-            setScaleEnabled(false)
-            axisRight.setDrawZeroLine(true)
-
-            axisLeft.apply {
-//                LargeValueFormatter()
-                setDrawGridLines(true)
-//                spaceTop = 1f
-                axisMinimum = 0f
-            }
-        }
-    }
-
+//    private fun setupbarchart(label_11:String,
+//                              label_10:String,
+//                              label_9:String,
+//                              label_8:String,
+//                              label_7:String,
+//                              label_6:String,
+//                              label_5:String,
+//                              label_4:String,
+//                              label_3:String,
+//                              label_2:String,
+//                              label_1:String,
+//                              maxRange: Float){
+//        val xAxisValue = mutableListOf<String>()
+//        xAxisValue.add(label_1)
+//        xAxisValue.add(label_2)
+//        xAxisValue.add(label_3)
+//        xAxisValue.add(label_4)
+//        xAxisValue.add(label_5)
+//        xAxisValue.add(label_6)
+//        xAxisValue.add(label_7)
+//        xAxisValue.add(label_8)
+//        xAxisValue.add(label_9)
+//        xAxisValue.add(label_10)
+//        xAxisValue.add(label_11)
+//
+//        chart.apply {
+//            description.isEnabled = false
+//            description.textSize = 0f
+////            LargeValueFormatter()
+//            xAxis.axisMinimum = 0f
+//            xAxis.axisMaximum = 11f
+//
+//            // ここのmaxYRangeの値を適度に変更すること！
+//            setVisibleYRange(0f, maxRange ,YAxis.AxisDependency.LEFT)
+//
+//            data.isHighlightEnabled = false
+//            invalidate()
+//            isScaleXEnabled = false
+//            setPinchZoom(false)
+//            setDrawGridBackground(false)
+//            setDrawValueAboveBar(false) // グラフの数値を入れるか(false)入れないか(true)
+//
+//            legend.apply{
+//                isEnabled = false
+//            }
+//
+//            xAxis.apply {
+//                granularity = 1f
+//                isGranularityEnabled = true
+//                setDrawGridLines(false)
+//                setDrawLabels(true)
+//                textSize = 12f
+//
+//                position = XAxis.XAxisPosition.TOP_INSIDE
+//                valueFormatter = IndexAxisValueFormatter(xAxisValue)
+//
+//                setLabelCount(11)
+//                mAxisMinimum = 0f
+//                mAxisMaximum = 11f
+////                mAxisRange = 12f
+//                setCenterAxisLabels(false)
+//                setAvoidFirstLastClipping(true)
+//                spaceMin  = 4f
+//                spaceMax = 4f
+//            }
+//
+//            axisRight.isEnabled = false
+//            setScaleEnabled(false)
+//            axisRight.setDrawZeroLine(true)
+//
+//            axisLeft.apply {
+////                LargeValueFormatter()
+//                setDrawGridLines(true)
+////                spaceTop = 1f
+//                axisMinimum = 0f
+//            }
+//        }
+//    }
+//
 
     enum class ScanFlag {
         SAFE, DANGER
