@@ -25,7 +25,9 @@ import java.util.*
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.AnimatedVectorDrawable
+import android.view.View
 import android.widget.*
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.durian.Adapter.AdviceAdapter
@@ -47,6 +49,9 @@ class ScanActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var adviceListView: ListView
     private lateinit var detectLabelsRecyclerView: RecyclerView
+    private lateinit var detectImageLayout: ConstraintLayout
+
+    private lateinit var extractionImageManager: ExtractionImageManager
 
     private val CAMERA_INTENT = 1
     private val SELECTION_INTENT = 2
@@ -69,6 +74,9 @@ class ScanActivity : AppCompatActivity() {
         progressBar.isVisible = false
         adviceListView = findViewById(R.id.adviceListView)
         detectLabelsRecyclerView = findViewById(R.id.detectLabelsRecyclerView)
+        detectImageLayout = findViewById(R.id.detectionImageLayout)
+
+        extractionImageManager = ExtractionImageManager(this, detectImageLayout, detectionView)
 
         val toStr = intent.getStringExtra("to") ?: ""
         when (toStr) {
@@ -95,7 +103,11 @@ class ScanActivity : AppCompatActivity() {
                 if (imgStr != null) {
                     val imgBytes = Base64.decode(imgStr, Base64.DEFAULT)
                     val imgByteStream = ByteArrayInputStream(imgBytes)
-                    val img = BitmapFactory.decodeStream(imgByteStream)
+                    var img = BitmapFactory.decodeStream(imgByteStream)
+                    img = resizeBitmap(img)
+                    // 画像の画素数を設定
+                    extractionImageManager.pixel_width = img.width
+                    extractionImageManager.pixel_height = img.height
                     detectionView.setImageBitmap(img)
 
                     visionAnnotation(imgBytes)
@@ -130,6 +142,9 @@ class ScanActivity : AppCompatActivity() {
                     val inputStream = FileInputStream(File(path))
                     var bitmap = BitmapFactory.decodeStream(inputStream)
                     bitmap = resizeBitmap(bitmap)
+                    // 画像の画素数を設定
+                    extractionImageManager.pixel_width = bitmap.width
+                    extractionImageManager.pixel_height = bitmap.height
                     detectionView.setImageBitmap(bitmap)
 
                     val byteBuffer = ByteArrayOutputStream()
@@ -151,6 +166,9 @@ class ScanActivity : AppCompatActivity() {
                     try {
                         var bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
                         bitmap = resizeBitmap(bitmap)
+                        // 画像の画素数を設定
+                        extractionImageManager.pixel_width = bitmap.width
+                        extractionImageManager.pixel_height = bitmap.height
                         detectionView.setImageBitmap(bitmap)
 
                         val byteBuffer = ByteArrayOutputStream()
@@ -175,6 +193,7 @@ class ScanActivity : AppCompatActivity() {
 
         startActivityForResult(intent, CAMERA_INTENT)
     }
+
 
     private fun createSaveFileUri(): Uri {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.JAPAN).format(Date())
@@ -291,34 +310,6 @@ class ScanActivity : AppCompatActivity() {
                     if (resultJSONObj.has("danger_labels")) {
                         val dangerLabels = resultJSONObj.getJSONArray("danger_labels")
                         Log.d("[LOG] - DEBUG", "danger_labels -> %s".format(dangerLabels.toString()))
-                        if (dangerLabels.length() >= 10) {
-//                            chart.data = barData(
-//                                dangerLabels.getJSONObject(0).getInt("value").toFloat(),
-//                                dangerLabels.getJSONObject(1).getInt("value").toFloat(),
-//                                dangerLabels.getJSONObject(2).getInt("value").toFloat(),
-//                                dangerLabels.getJSONObject(3).getInt("value").toFloat(),
-//                                dangerLabels.getJSONObject(4).getInt("value").toFloat(),
-//                                dangerLabels.getJSONObject(5).getInt("value").toFloat(),
-//                                dangerLabels.getJSONObject(6).getInt("value").toFloat(),
-//                                dangerLabels.getJSONObject(7).getInt("value").toFloat(),
-//                                dangerLabels.getJSONObject(8).getInt("value").toFloat(),
-//                                dangerLabels.getJSONObject(9).getInt("value").toFloat(),
-//                                0.0f)
-//                            setupbarchart(
-//                                dangerLabels.getJSONObject(0).getString("label"),
-//                                dangerLabels.getJSONObject(1).getString("label"),
-//                                dangerLabels.getJSONObject(2).getString("label"),
-//                                dangerLabels.getJSONObject(3).getString("label"),
-//                                dangerLabels.getJSONObject(4).getString("label"),
-//                                dangerLabels.getJSONObject(5).getString("label"),
-//                                dangerLabels.getJSONObject(6).getString("label"),
-//                                dangerLabels.getJSONObject(7).getString("label"),
-//                                dangerLabels.getJSONObject(8).getString("label"),
-//                                dangerLabels.getJSONObject(9).getString("label"),
-//                                "",
-//                                dangerLabels.getJSONObject(0).getInt("value").toFloat() * 1.5f)
-                        }
-
 
                         if (resultJSONObj.has("detect_labels")) {
                             val detectLabels = resultJSONObj.getJSONArray("detect_labels")
@@ -337,14 +328,25 @@ class ScanActivity : AppCompatActivity() {
                                 intoJsonObj.put("check", checkLabelFlag)
                                 detectLabelsAdapterList.put(intoJsonObj)
                             }
-
                             detectLabelsRecyclerView.adapter = DetectLabelsAdapter(this, detectLabelsAdapterList)
                             detectLabelsRecyclerView.layoutManager = GridLayoutManager(this, 4)
                         }
                     }
 
-
-
+                    // 隠す部分を選択するボタンを設定
+                    for (index in 0 until resultJSONObj.getJSONArray("mosaic_points").length()) {
+                        // ボタン作成
+                        val addButton = Button(this)
+                        addButton.tag = resultJSONObj.getJSONArray("mosaic_points").getJSONObject(index)
+                        addButton.setOnClickListener {
+                            Toast.makeText(this, "ボタンのindexは... %dだ！".format(index), Toast.LENGTH_SHORT).show()
+                        }
+                        addButton.id = View.generateViewId()
+                        addButton.alpha = 0.5f
+                        addButton.setBackgroundColor(Color.RED)
+                        extractionImageManager.addSelectionButton(addButton)
+                    }
+                    extractionImageManager.showSelection()
                     enableMosaicButton(resultJSONObj.getJSONArray("mosaic_points").toString())
                     progressBar.isVisible = false
 
