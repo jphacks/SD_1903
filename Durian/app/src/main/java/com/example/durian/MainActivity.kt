@@ -42,18 +42,19 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_PERMISSION_CAMERA)
         }
 
-        // 通知＆定期ジョブを設定
-        createChannel(this)
 
-        val fetchJob = JobInfo.Builder(1, ComponentName(this, ScanJobService::class.java))
-//            .setMinimumLatency(5000)
-//            .setOverrideDeadline(10000)
-            .setPeriodic(TimeUnit.DAYS.toMillis(1))
-            .setPersisted(true)
-            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-            .build()
-
-        getSystemService(JobScheduler::class.java).schedule(fetchJob)
+        // 通知＆定期ジョブを設定（削除予定）
+//        createChannel(this)
+//
+//        val fetchJob = JobInfo.Builder(1, ComponentName(this, ScanJobService::class.java))
+////            .setMinimumLatency(5000)
+////            .setOverrideDeadline(10000)
+//            .setPeriodic(TimeUnit.DAYS.toMillis(1))
+//            .setPersisted(true)
+//            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+//            .build()
+//
+//        getSystemService(JobScheduler::class.java).schedule(fetchJob)
 
         // 通知からのIntent
         val inteEx = intent.extras
@@ -123,4 +124,3 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
-
