@@ -20,7 +20,7 @@ class ExtractionImageManager(val context: Context, val parentLayout: ConstraintL
         X, Y
     }
 
-    private val selectionButton = mutableListOf<Button>()   // 選択ボタンリスト
+    private val selectionButton = mutableListOf<ButtonExtend>()   // 選択ボタンリスト
     var pixel_width: Int? = null        // スキャン対象の画像Pixel
         get() {
             return field
@@ -39,8 +39,20 @@ class ExtractionImageManager(val context: Context, val parentLayout: ConstraintL
 
 
     // 選択ボタン追加
-    fun addSelectionButton(button: Button) {
+    fun addSelectionButton(button: ButtonExtend) {
         selectionButton.add(button)
+    }
+
+    // 選択されているボタンの取得メソッド
+    fun pushingButtonList(): List<ButtonExtend> {
+        val tmpList = mutableListOf<ButtonExtend>()
+        for (button in this.selectionButton) {
+            if (!button.isPushing) {
+                tmpList.add(button)
+            }
+        }
+
+        return tmpList.toList()
     }
 
 

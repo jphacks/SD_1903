@@ -215,12 +215,20 @@ class ScanActivity : AppCompatActivity() {
 
 
     // モザイク遷移ボタンを有効化
-    private fun enableMosaicButton(putStr: String) {
+    private fun enableMosaicButton() {
         addMosaicButton.isEnabled = true
+
         addMosaicButton.setOnClickListener {
             if ((addMosaicButton.tag as ScanFlag) == ScanFlag.DANGER) {
+                // モザイクする箇所のみ取得
+                val selectedButtons = extractionImageManager.pushingButtonList()
+                val putJSONArray = JSONArray()
+                for (button in selectedButtons) {
+                    putJSONArray.put(button.tag as JSONObject)
+                }
+                // create intent
                 val intent = Intent(this, MosaicActivity::class.java)
-                intent.putExtra("mosaic_points", putStr)
+                intent.putExtra("mosaic_points", putJSONArray.toString())
                 startActivityForResult(intent, ADD_MOSAIC_INTENT)
             } else if ((addMosaicButton.tag as ScanFlag) == ScanFlag.SAFE) {
                 finish()
@@ -333,22 +341,35 @@ class ScanActivity : AppCompatActivity() {
                         }
                     }
 
-                    // 隠す部分を選択するボタンを設定
+                    // ---隠す部分を選択するボタンを設定--- //
+                    // コピーを作成
+                    val tmpMosaicPoints = JSONArray(resultJSONObj.getJSONArray("mosaic_points").toString())
                     for (index in 0 until resultJSONObj.getJSONArray("mosaic_points").length()) {
                         // ボタン作成
-                        val addButton = Button(this)
+                        val addButton = ButtonExtend(this)
                         addButton.tag = resultJSONObj.getJSONArray("mosaic_points").getJSONObject(index)
                         addButton.setOnClickListener {
+                            // [DEBUG]
                             Toast.makeText(this, "ボタンのindexは... %dだ！".format(index), Toast.LENGTH_SHORT).show()
-                            enableMosaicButton(resultJSONObj.getJSONArray("mosaic_points").remove(index).toString())
+                            if (!addButton.isPushing) {
+                                // モザイク箇所を削除
+                                addButton.alpha = 0.2f
+                                addButton.isPushing = true
+
+                            } else {
+                                // モザイク箇所を追加
+                                addButton.alpha = 0.6f
+                                addButton.isPushing = false
+                            }
                         }
                         addButton.id = View.generateViewId()
-                        addButton.alpha = 0.5f
+                        addButton.alpha = 0.6f
+                        addButton.isPushing = false
                         addButton.setBackgroundColor(Color.RED)
                         extractionImageManager.addSelectionButton(addButton)
                     }
-                    extractionImageManager.showSelection()
-                    enableMosaicButton(resultJSONObj.getJSONArray("mosaic_points").toString())
+                    extractionImageManager.showSelection()  // 選択ボタン表示
+                    enableMosaicButton()    // 遷移ボタン有効化
                     progressBar.isVisible = false
 
                     // アニメーション処理
