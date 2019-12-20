@@ -20,10 +20,8 @@ class ExtractionImageManager(val context: Context, val parentLayout: ConstraintL
         X, Y
     }
 
-    // 選択ボタンリスト
-    private val selectionButton = mutableListOf<Button>()
-    // スキャン対象の画像Pixel
-    var pixel_width: Int? = null
+    private val selectionButton = mutableListOf<Button>()   // 選択ボタンリスト
+    var pixel_width: Int? = null        // スキャン対象の画像Pixel
         get() {
             return field
         }
@@ -46,6 +44,7 @@ class ExtractionImageManager(val context: Context, val parentLayout: ConstraintL
     }
 
 
+    // 表示メソッド
     fun showSelection() {
         for (button in this.selectionButton) {
             val positionData: JSONObject = button.tag as JSONObject
@@ -69,6 +68,7 @@ class ExtractionImageManager(val context: Context, val parentLayout: ConstraintL
             constrainSet.applyTo(parentLayout)
         }
     }
+
 
     // 画像におけるピクセルサイズから、ディスプレイ上でのピクセルサイズ
     private fun convertActualAccept(value: Int, axis: Axis): Int {
