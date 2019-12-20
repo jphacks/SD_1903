@@ -340,6 +340,7 @@ class ScanActivity : AppCompatActivity() {
                         addButton.tag = resultJSONObj.getJSONArray("mosaic_points").getJSONObject(index)
                         addButton.setOnClickListener {
                             Toast.makeText(this, "ボタンのindexは... %dだ！".format(index), Toast.LENGTH_SHORT).show()
+                            enableMosaicButton(resultJSONObj.getJSONArray("mosaic_points").remove(index).toString())
                         }
                         addButton.id = View.generateViewId()
                         addButton.alpha = 0.5f
