@@ -1,7 +1,9 @@
 package com.example.durian
 
 import android.content.Context
+import android.media.Image
 import android.text.Layout
+import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -20,8 +22,10 @@ class ExtractionImageManager(val context: Context, val parentLayout: ConstraintL
         X, Y
     }
 
-    private val selectionButton = mutableListOf<ButtonExtend>()   // 選択ボタンリスト
-    var pixel_width: Int? = null        // スキャン対象の画像Pixel
+    // 選択ボタンリスト
+    private val selectionButton = mutableListOf<ButtonExtend>()
+    // スキャン対象の画像Pixel
+    var pixel_width: Int? = null
         get() {
             return field
         }
@@ -35,7 +39,16 @@ class ExtractionImageManager(val context: Context, val parentLayout: ConstraintL
         set(value) {
             field = value
         }
-
+    // Aspect radio of Image ( width / height )
+    val ImageAspectRatio: Float
+        get() {
+            return (pixel_width?.toFloat() ?: 1.0f) / (pixel_height?.toFloat() ?: 1.0f)
+        }
+    // Aspect radio of ImageView ( width / height )
+    val ViewAspectRatio: Float
+        get() {
+            return imageView.width.toFloat() / imageView.height.toFloat()
+        }
 
 
     // 選択ボタン追加
@@ -108,13 +121,13 @@ class ExtractionImageManager(val context: Context, val parentLayout: ConstraintL
         when (axis) {
             Axis.X -> {
                 // ImageViewにおける画像の基準点
-                val origin_img_left = if (pixel_width?: imageView.width >= pixel_height?: imageView.height) 0 else (imageView.width -  actualImgSize(Axis.X)) / 2
+                val origin_img_left = if (ImageAspectRatio >= ViewAspectRatio) 0 else (imageView.width -  actualImgSize(Axis.X)) / 2
                 return origin_img_left + size
             }
 
             Axis.Y -> {
                 // ImageViewにおける画像の基準点
-                val origin_img_top = if (pixel_height?: imageView.height >= pixel_width?: imageView.width) 0 else (imageView.height -  actualImgSize(Axis.Y)) / 2
+                val origin_img_top = if (ViewAspectRatio >= ImageAspectRatio) 0 else (imageView.height -  actualImgSize(Axis.Y)) / 2
                 return origin_img_top + size
             }
         }
@@ -124,13 +137,21 @@ class ExtractionImageManager(val context: Context, val parentLayout: ConstraintL
         when (axis) {
             Axis.X -> {
                 // ディスプレイ上の画像サイズ
-                val disp_image_width = if ((pixel_width?: imageView.width) >= (pixel_height?: imageView.height)) imageView.width.toFloat() else imageView.height.toFloat() * ((pixel_width?.toFloat() ?: imageView.width.toFloat()) / (pixel_height?.toFloat() ?: imageView.height.toFloat()))
+                val disp_image_width = if (ImageAspectRatio >= ViewAspectRatio) {
+                    imageView.width.toFloat()
+                } else {
+                    imageView.height.toFloat() * ((pixel_width?.toFloat() ?: imageView.width.toFloat()) / (pixel_height?.toFloat() ?: imageView.height.toFloat()))
+                }
                 return disp_image_width.toInt()
             }
 
             Axis.Y -> {
                 // ディスプレイ上の画像サイズ
-                val disp_image_height = if ((pixel_height ?: imageView.height) >= (pixel_width?: imageView.width)) imageView.height.toFloat() else imageView.width.toFloat() * ((pixel_height?.toFloat() ?: imageView.height.toFloat()) / (pixel_width?.toFloat() ?: imageView.width.toFloat()))
+                val disp_image_height = if (ViewAspectRatio >= ImageAspectRatio) {
+                    imageView.height.toFloat()
+                } else {
+                    imageView.width.toFloat() * ((pixel_height?.toFloat() ?: imageView.height.toFloat()) / (pixel_width?.toFloat() ?: imageView.width.toFloat()))
+                }
                 return disp_image_height.toInt()
             }
         }

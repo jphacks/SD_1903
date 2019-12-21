@@ -363,7 +363,7 @@ class ScanActivity : AppCompatActivity() {
                         addButton.id = View.generateViewId()
                         addButton.alpha = 0.6f
                         addButton.isPushing = false
-                        addButton.setBackgroundColor(Color.RED)
+                        addButton.setBackgroundResource(R.drawable.selection_button)
                         extractionImageManager.addSelectionButton(addButton)
                     }
                     extractionImageManager.showSelection()  // 選択ボタン表示
