@@ -376,16 +376,6 @@ def privacy_scan(request):
                             advice_text_flags.append("PSN")
                             detected_tag_dict['text'] = True
                             advice_list.append(["名前", "人物名「%s」が写っていま。名前がバレていないか確認しましょう。"%(char_info[0])])
-                    # advice_text = ""
-                    # if "ART" in advice_text_flags:
-                    #     advice_list.append(["人工物", "文字に人工物が含まれています"])
-                    # if "ORG" in advice_text_flags:
-                    #     advice_list.append(["組織名", "文字に組織名が含まれています"])
-                    # if "LOC" in advice_text_flags:
-                    #     advice_list.append(["場所", "場所を特定できる文字が写っています"])
-                    # if "PSN" in advice_text_flags:
-                    #     advice_list.append(["名前", "人名が写っています"])
-                    # advice_list.append(["text", advice_text])
                 else:
                     text_point = text_info['boundingPoly']['vertices']
                     top_x = text_point[0]['x'] if 'x' in text_point[0] else 0
@@ -429,6 +419,8 @@ def privacy_scan(request):
         db_blob.upload_from_string(json.dumps(db_json), content_type="application/json")
 
 # ----------------------------------
+
+        ###　[Process] 処理結果や統計データからレスポンスを作成
 
         # モザイク処理（削除予定）
         # for mosaic_point in return_mosaic_list:
