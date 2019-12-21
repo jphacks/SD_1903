@@ -349,8 +349,6 @@ class ScanActivity : AppCompatActivity() {
                         val addButton = ButtonExtend(this)
                         addButton.tag = resultJSONObj.getJSONArray("mosaic_points").getJSONObject(index)
                         addButton.setOnClickListener {
-                            // [DEBUG]
-                            Toast.makeText(this, "ボタンのindexは... %dだ！".format(index), Toast.LENGTH_SHORT).show()
                             if (!addButton.isPushing) {
                                 // モザイク箇所を削除
                                 addButton.alpha = 0.2f
