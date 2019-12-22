@@ -3,6 +3,7 @@ package com.example.durian
 import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -351,17 +352,16 @@ class ScanActivity : AppCompatActivity() {
                         addButton.setOnClickListener {
                             if (!addButton.isPushing) {
                                 // モザイク箇所を削除
-                                addButton.alpha = 0.2f
+                                addButton.setBackgroundResource(R.drawable.selection_button_pushed)
                                 addButton.isPushing = true
 
                             } else {
                                 // モザイク箇所を追加
-                                addButton.alpha = 0.6f
+                                addButton.setBackgroundResource(R.drawable.selection_button)
                                 addButton.isPushing = false
                             }
                         }
                         addButton.id = View.generateViewId()
-                        addButton.alpha = 0.6f
                         addButton.isPushing = false
                         addButton.setBackgroundResource(R.drawable.selection_button)
                         extractionImageManager.addSelectionButton(addButton)
@@ -382,6 +382,18 @@ class ScanActivity : AppCompatActivity() {
                             icon.start()
                         }
                     }
+
+                    // ダイアログ表示
+                    val pref  = getSharedPreferences("durian_data",Context.MODE_PRIVATE)
+                    if (!pref.getBoolean("ScanDialogStop", false)) {
+                        ShowNoActionDialog(this, R.layout.dialog_scan, {view:View ->
+                            val dialogStopradio: RadioButton = view.findViewById(R.id.dialogStopRadio)
+                            if (dialogStopradio.isChecked) {
+                                pref.edit().putBoolean("ScanDialogStop", true).apply()
+                            }
+                        })
+                    }
+
 
 
                 }

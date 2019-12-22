@@ -18,4 +18,6 @@
     <string name="picsLabel">加工のみする</string>
     <string name="picLabel">端末から選ぶ</string>
     <string name="detect_tag">検出されたタグ</string>
+    <string name="selection_message">タップしてモザイク箇所を指定しよう</string>
+    <string name="stop_dialog">今後、このダイアログを表示しない</string>
 </resources>

@@ -62,12 +62,8 @@ def mosaic_process(request):
     # Storageから統計データを取得
     client = storage.Client()
     bucket = client.get_bucket('cras_storage')
-    jphacks_logo_blob = bucket.get_blob('jphacks_logo.png')
-    # img_binarystream = io.BytesIO(jphacks_logo_blob.download_as_string())
-    # img_pil = Image.open(img_binarystream)
-    # img_numpy = np.asarray(img_pil)
-    # stamp = cv2.cvtColor(img_numpy, cv2.COLOR_RGBA2BGR)
-    stamped_nparr = np.frombuffer(jphacks_logo_blob.download_as_string(), dtype=np.uint8)
+    logo_blob = bucket.get_blob('DurianIconStamp.png')
+    stamped_nparr = np.frombuffer(logo_blob.download_as_string(), dtype=np.uint8)
     stamp = cv2.imdecode(stamped_nparr, cv2.IMREAD_ANYCOLOR)
 
     request_json = request.get_json()
