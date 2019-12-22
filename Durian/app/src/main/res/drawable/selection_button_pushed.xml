@@ -3,8 +3,7 @@
     android:shape="rectangle">
 
     <!--  背景色  -->
-    <solid android:color="@color/colorSelectButton" />
-
+    <solid android:color="@color/colorSelectButtonPushed" />
     <!--  枠線  -->
     <stroke
         android:width="2dp"

@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
-    <color name="colorSelectButton">#e17055</color>
-    <color name="colorSelectButtonBorder">#d63031</color>
+    <color name="colorPrimary">#B9EEA0</color>
+    <color name="colorPrimaryDark">#18668A</color>
+    <color name="colorAccent">#00b894</color>
+
+    <color name="colorSelectButton">#b22ecc71</color>
+    <color name="colorSelectButtonPushed">#4c2ecc71</color>
+    <color name="colorSelectButtonBorder">#27ae60</color>
 </resources>
