@@ -32,6 +32,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.core:core-ktx:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.browser:browser:1.2.0'
 
     // uai 追加　チャート
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'

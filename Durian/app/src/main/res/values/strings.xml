@@ -20,4 +20,6 @@
     <string name="detect_tag">検出されたタグ</string>
     <string name="selection_message">タップしてモザイク箇所を指定しよう</string>
     <string name="stop_dialog">今後、このダイアログを表示しない</string>
+    <string name="accept">同意する</string>
+    <string name="policy">プライバシーポリシー</string>
 </resources>

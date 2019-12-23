@@ -9,17 +9,28 @@ import android.view.View
 import android.widget.RadioButton
 
 
+fun ShowNoActionDialog(activity: Activity, title: String, layoutId: Int, cancelAble:Boolean = false, setListener: (View, AlertDialog) -> Unit) {
+    val view: View = activity.layoutInflater.inflate(layoutId, null)
+    val dialog = AlertDialog.Builder(activity).apply {
+        setView(view)
+        setTitle(title)
+        setIcon(R.mipmap.durian_launcher)
+        setCancelable(cancelAble)
+    }
+    val alert = dialog.show()
+    setListener(view, alert)
+}
 
-fun ShowNoActionDialog(activity: Activity, layoutId: Int, okListener: (View) -> Unit) {
+fun ShowActionDialog(activity: Activity, title: String, layoutId: Int, cancelAble:Boolean = false, okListener: (View) -> Unit) {
     val view: View = activity.layoutInflater.inflate(layoutId, null)
     AlertDialog.Builder(activity).apply {
         setView(view)
-        setTitle("使い方")
+        setTitle(title)
         setPositiveButton("OK", DialogInterface.OnClickListener { dialogInterface, i ->
             okListener(view)
         })
         setIcon(R.mipmap.durian_launcher)
-        setCancelable(true)
+        setCancelable(cancelAble)
         show()
     }
 }

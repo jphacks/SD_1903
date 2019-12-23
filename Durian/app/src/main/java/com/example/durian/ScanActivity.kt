@@ -386,7 +386,7 @@ class ScanActivity : AppCompatActivity() {
                     // ダイアログ表示
                     val pref  = getSharedPreferences("durian_data",Context.MODE_PRIVATE)
                     if (!pref.getBoolean("ScanDialogStop", false)) {
-                        ShowNoActionDialog(this, R.layout.dialog_scan, {view:View ->
+                        ShowActionDialog(this, "使い方", R.layout.dialog_scan, true, okListener= {view:View ->
                             val dialogStopradio: RadioButton = view.findViewById(R.id.dialogStopRadio)
                             if (dialogStopradio.isChecked) {
                                 pref.edit().putBoolean("ScanDialogStop", true).apply()
