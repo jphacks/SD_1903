@@ -1,26 +1,28 @@
 package com.example.durian
 
 import android.Manifest
-import android.app.job.JobInfo
-import android.app.job.JobScheduler
-import android.content.ComponentName
+import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import androidx.appcompat.app.AppCompatActivity
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.util.TimeUtils
+import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
+import androidx.appcompat.app.AppCompatActivity
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import java.util.concurrent.TimeUnit
+
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var cameraButton: Button
     private lateinit var pictureButton: Button
     private lateinit var multipleImagesButton: Button
+    private lateinit var infoButton: ImageButton
 
     private val REQUEST_PERMISSION_CAMERA = 1
     private val REQUEST_PERMISSION_WRITEFILE = 2
@@ -30,9 +32,35 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+
+        // プライバシーポリシーのアラートダイアログ
+        val pref = getSharedPreferences("durian_data", Context.MODE_PRIVATE)
+        val privacy_policy = pref.getBoolean("privacy_policy_checked", false)
+        if (!privacy_policy) {
+            ShowNoActionDialog(this, "プライバシーポリシー", R.layout.dialog_policy, setListener = { view: View, alertDialog: AlertDialog ->
+                val policyButton: Button = view.findViewById(R.id.privacyPolicyButton)
+                // show privacy policy page
+                policyButton.setOnClickListener {
+                    val intent = CustomTabsIntent.Builder().build()
+                    intent.launchUrl(this, Uri.parse("https://storage.googleapis.com/cras_storage/StaticPage/PrivacyPolicy.html"))
+                }
+
+                val acceptButton: Button = view.findViewById(R.id.policyAcceptButton)
+                acceptButton.setOnClickListener {
+                    pref.edit().putBoolean("privacy_policy_checked", true).apply()
+                    alertDialog.dismiss()
+                }
+            })
+        }
+
         cameraButton = findViewById(R.id.cameraButton)
         pictureButton = findViewById(R.id.pictureButton)
         multipleImagesButton = findViewById(R.id.multipleImagesButton)
+        infoButton = findViewById(R.id.infoButton)
+        infoButton.setOnClickListener {
+            val intent = Intent(this, InformationActivity::class.java)
+            startActivity(intent)
+        }
 
         // カメラ, ファイルのアクセス許可
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
