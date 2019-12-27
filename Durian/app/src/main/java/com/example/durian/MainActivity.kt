@@ -105,21 +105,35 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
 
         cameraButton.setOnClickListener {
-            val intent = Intent(this, ScanActivity::class.java)
-            intent.putExtra("to", "CAMERA")
-            startActivity(intent)
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), REQUEST_PERMISSION_CAMERA)
+            } else {
+                val intent = Intent(this, ScanActivity::class.java)
+                intent.putExtra("to", "CAMERA")
+                startActivity(intent)
+            }
         }
 
         pictureButton.setOnClickListener {
-            val intent = Intent(this, ScanActivity::class.java)
-            intent.putExtra("to", "PICTURES")
-            startActivity(intent)
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_PERMISSION_CAMERA)
+            } else {
+                val intent = Intent(this, ScanActivity::class.java)
+                intent.putExtra("to", "PICTURES")
+                startActivity(intent)
+            }
         }
 
         multipleImagesButton.setOnClickListener {
-            val intent = Intent(this, SaveActivity::class.java)
-            intent.putExtra("to", "PICTURES")
-            startActivity(intent)
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_PERMISSION_CAMERA)
+            } else {
+                val intent = Intent(this, SaveActivity::class.java)
+                intent.putExtra("to", "PICTURES")
+                startActivity(intent)
+            }
         }
     }
 
