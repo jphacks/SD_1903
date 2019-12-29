@@ -9,7 +9,7 @@
 
 ## アプリインストール
 GooglePlayからインストールできます。
-<a href='https://play.google.com/store/apps/details?id=com.cyan_namid09.durian&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Google Play で手に入れよう' src='https://play.google.com/intl/ja/badges/static/images/badges/ja_badge_web_generic.png'/></a>
+<a href='https://play.google.com/store/apps/details?id=com.cyan_namid09.durian&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Google Play で手に入れよう' src='https://play.google.com/intl/ja/badges/static/images/badges/ja_badge_web_generic.png' width="300" /></a>
 
 ### 背景
 2019年10月8日、さいたま市の男が、SNSに投稿された女性の写真から瞳に映った景色の場所を特定し、女性にわいせつな行為を行ったというニュースが報道された。（※１）
